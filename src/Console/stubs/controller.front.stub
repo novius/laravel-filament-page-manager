@@ -1,0 +1,36 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Request;
+use Novius\LaravelNovaPageManager\Models\Page;
+
+class {{ class }} extends Controller
+{
+    /**
+     * Handle the incoming request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string $slug
+     * @return \Illuminate\Http\Response
+     */
+    public function __invoke(Request $request, string $slug)
+    {
+        $locale = app()->getLocale();
+        $page = Page::where('slug', $slug)->where('locale', $locale)->first();
+        if (empty($page)) {
+            abort(404);
+        }
+        /**
+         * @var Page $page
+         */
+        if (!$page->isPublished()) {
+            $token = (string)$request->get('previewToken', '');
+            if ($token !== $page->preview_token) {
+                abort(403);
+            }
+        }
+
+        return sprintf('PAGE %d', $page->id);
+    }
+}

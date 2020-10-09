@@ -1,0 +1,47 @@
+{
+    "name": "novius/laravel-nova-page-manager",
+    "description": "A Laravel Nova package to manage pages.",
+    "keywords": [
+        "laravel",
+        "nova",
+        "page-manager"
+    ],
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Novius Agency",
+            "email": "team-developpeurs@novius.com",
+            "homepage": "https://www.novius.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4.0",
+        "benjaminhirsch/nova-slug-field": "^1.2",
+        "optimistdigital/nova-locale-field": "^2.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "~2.15.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Novius\\LaravelNovaPageManager\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Novius\\LaravelNovaPageManager\\LaravelNovaPageManagerServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "lint": [
+            "php-cs-fixer fix --config .php_cs -vv --diff --allow-risky=yes --dry-run"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
