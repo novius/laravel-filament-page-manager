@@ -17,6 +17,7 @@
     "require": {
         "php": ">=7.4.0",
         "benjaminhirsch/nova-slug-field": "^1.2",
+        "novius/laravel-nova-contexts": "^1.0.0",
         "optimistdigital/nova-locale-field": "^2.0"
     },
     "require-dev": {
