@@ -114,8 +114,8 @@ class Page extends Resource
                 ->hideFromIndex(),
 
             Slug::make(trans('laravel-nova-page-manager::page.slug'), 'slug')
-                ->creationRules('required', 'string', 'pageSlug', 'uniquePage:{{resourceLocale}}')
-                ->updateRules('required', 'string', 'pageSlug', 'uniquePage:{{resourceLocale}},{{resourceId}}')
+                ->creationRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}}')
+                ->updateRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}},{{resourceId}}')
                 ->disableAutoUpdateWhenUpdating()
                 ->hideFromIndex(),
 
