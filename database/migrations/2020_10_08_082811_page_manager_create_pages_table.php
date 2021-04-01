@@ -16,9 +16,9 @@ class PageManagerCreatePagesTable extends Migration
         Schema::create('page_manager_pages', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');
-            $table->string('slug');
-            $table->string('locale');
+            $table->string('title', 191);
+            $table->string('slug', 191);
+            $table->string('locale', 15);
             $table->string('template');
 
             $table->unsignedBigInteger('parent_id')->nullable();
