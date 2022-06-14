@@ -7,8 +7,8 @@ use Laravel\Nova\Filters\Filter;
 
 class PublishedFilter extends Filter
 {
-    const PUBLISHED = 1;
-    const NOT_PUBLISHED = 2;
+    public const PUBLISHED = 1;
+    public const NOT_PUBLISHED = 2;
 
     /**
      * The filter's component.

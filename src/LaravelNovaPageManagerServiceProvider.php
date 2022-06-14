@@ -31,7 +31,7 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom($packageDir.'/database/migrations');
 
         $this->loadTranslationsFrom($packageDir.'/resources/lang', 'laravel-nova-page-manager');
-        $this->publishes([__DIR__.'/../resources/lang' => resource_path('lang/vendor/laravel-nova-page-manager')], 'lang');
+        $this->publishes([__DIR__.'/../resources/lang' => lang_path('vendor/laravel-nova-page-manager')], 'lang');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

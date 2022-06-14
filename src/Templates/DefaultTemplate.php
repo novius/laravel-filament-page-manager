@@ -26,7 +26,7 @@ class DefaultTemplate extends AbstractPageTemplate
             Text::make(trans('laravel-nova-page-manager::template.field_subtitle'), 'subtitle')
                 ->rules('required'),
 
-            Trix::make(trans('laravel-nova-page-manager::template.field_content'), 'subtitle')
+            Trix::make(trans('laravel-nova-page-manager::template.field_content'), 'content')
                 ->rules('required'),
         ];
     }

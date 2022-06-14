@@ -2,8 +2,6 @@
 
 namespace Novius\LaravelNovaPageManager\Resources;
 
-use Benjaminhirsch\NovaSlugField\Slug;
-use Benjaminhirsch\NovaSlugField\TextWithSlug;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
@@ -14,19 +12,22 @@ use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
+use Novius\LaravelNovaContexts\Fields\ContextField;
 use Novius\LaravelNovaContexts\Filters\ContextFilter;
+use Novius\LaravelNovaContexts\LaravelNovaContexts;
+use Novius\LaravelNovaPageManager\Actions\TranslatePage;
 use Novius\LaravelNovaPageManager\Filters\PublishedFilter;
 use Novius\LaravelNovaPageManager\Helpers\TemplatesHelper;
-use OptimistDigital\NovaLocaleField\LocaleField;
 
 class Page extends Resource
 {
-    const TITLE_TRUNCATE_LIMIT_CHARS = 25;
+    public const TITLE_TRUNCATE_LIMIT_CHARS = 25;
 
     /**
      * The model the resource corresponds to.
@@ -107,27 +108,18 @@ class Page extends Resource
                 ->asHtml()
                 ->onlyOnIndex(),
 
-            TextWithSlug::make(trans('laravel-nova-page-manager::page.title'), 'title')
-                ->slug('slug')
+            Text::make(trans('laravel-nova-page-manager::page.title'), 'title')
                 ->rules('required', 'string', 'max:191')
                 ->sortable()
                 ->hideFromIndex(),
 
-            Slug::make(trans('laravel-nova-page-manager::page.slug'), 'slug')
+            Slug::make(trans('laravel-nova-menu::menu.slug'), 'slug')
+                ->from('title')
                 ->creationRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}}')
-                ->updateRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}},{{resourceId}}')
-                ->disableAutoUpdateWhenUpdating()
-                ->hideFromIndex(),
+                ->updateRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}},{{resourceId}}'),
 
-            BelongsTo::make(trans('laravel-nova-page-manager::page.parent'), 'parent', static::class)
-                ->nullable()
-                ->withoutTrashed()
-                ->searchable()
-                ->hideFromIndex(),
-
-            LocaleField::make(trans('laravel-nova-page-manager::page.locale'), 'locale', 'locale_parent_id')
-                ->locales($locales)
-                ->maxLocalesOnIndex(4)
+            ContextField::make(trans('laravel-nova-page-manager::page.locale'), 'locale')
+                ->rules('in:'.implode(',', array_keys($locales)))
                 ->hideFromIndex(function () use ($locales) {
                     return count($locales) < 2;
                 })
@@ -141,6 +133,12 @@ class Page extends Resource
                     return count($locales) < 2;
                 }),
 
+            BelongsTo::make(trans('laravel-nova-page-manager::page.parent'), 'parent', static::class)
+                ->nullable()
+                ->withoutTrashed()
+                ->searchable()
+                ->hideFromIndex(),
+
             Select::make(trans('laravel-nova-page-manager::page.template'), 'template')
                 ->options($templates)
                 ->rules('required', 'in:'.implode(',', array_keys($templates)))
@@ -151,12 +149,10 @@ class Page extends Resource
             })->exceptOnForms(),
 
             DateTime::make(trans('laravel-nova-page-manager::page.publication_date'), 'publication_date')
-                ->firstDayOfWeek(1)
                 ->nullable()
                 ->rules('nullable', 'date'),
 
             DateTime::make(trans('laravel-nova-page-manager::page.publication_end_date'), 'end_publication_date')
-                ->firstDayOfWeek(1)
                 ->nullable()
                 ->rules('nullable', 'after:publication_date'),
 
@@ -224,6 +220,7 @@ class Page extends Resource
                 $field->hideFromDetail();
                 $fieldsWithoutPanel[] = $field;
                 unset($templateFields[$key]);
+
                 continue;
             }
 
@@ -259,7 +256,9 @@ class Page extends Resource
      */
     public function cards(Request $request)
     {
-        return [];
+        return [
+            (new LaravelNovaContexts())->dynamicHeight(),
+        ];
     }
 
     /**
@@ -295,7 +294,14 @@ class Page extends Resource
      */
     public function actions(Request $request)
     {
-        return [];
+        $locales = config('laravel-nova-page-manager.locales', []);
+        if (count($locales) <= 1) {
+            return [];
+        }
+
+        return [
+            (new TranslatePage())->onlyInline(),
+        ];
     }
 
     /**

@@ -4,14 +4,17 @@ This package allows you to manage pages with custom templates.
 
 ## Requirements
 
-* PHP >= 7.4
-* Laravel Framework >= 8.0
+* PHP >= 8.0
+* Laravel Nova >= 4.0
 
 ## Installation
 
 ```sh
 composer require novius/laravel-nova-page-manager
 ```
+
+> **NOTE**: These instructions are for Laravel Nova >= 4.0. If you are using prior version, please
+> see the [previous version's docs](https://github.com/novius/laravel-nova-page-manager/tree/1.x).
 
 **Validator translation**
 

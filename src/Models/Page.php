@@ -2,13 +2,14 @@
 
 namespace Novius\LaravelNovaPageManager\Models;
 
-use App\Exceptions\ForeignKeyException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Novius\LaravelNovaContexts\Traits\HasContext;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * Class Page
@@ -37,11 +38,12 @@ use Novius\LaravelNovaContexts\Traits\HasContext;
 class Page extends Model
 {
     use HasContext;
+    use HasSlug;
 
-    const ROBOTS_INDEX_FOLLOW = 1;
-    const ROBOTS_INDEX_NOFOLLOW = 2;
-    const ROBOTS_NOINDEX_NOFOLLOW = 3;
-    const ROBOTS_NOINDEX_FOLLOW = 4;
+    public const ROBOTS_INDEX_FOLLOW = 1;
+    public const ROBOTS_INDEX_NOFOLLOW = 2;
+    public const ROBOTS_NOINDEX_NOFOLLOW = 3;
+    public const ROBOTS_NOINDEX_FOLLOW = 4;
 
     protected $table = 'page_manager_pages';
 
@@ -67,7 +69,7 @@ class Page extends Model
     {
         static::saving(function ($page) {
             if ($page->exists && $page->id === $page->parent_id) {
-                throw new ForeignKeyException('Page : parent_id can\'t be same as primary key.');
+                throw new \Exception('Page : parent_id can\'t be same as primary key.');
             }
 
             if (empty($page->preview_token)) {
@@ -79,6 +81,11 @@ class Page extends Model
                 $page->locale = array_key_first($locales);
             }
         });
+    }
+
+    public function localParent()
+    {
+        return $this->hasOne(static::class, 'id', 'locale_parent_id');
     }
 
     public function parent()
@@ -160,9 +167,6 @@ class Page extends Model
         return route($routeName, $params);
     }
 
-    /**
-     * @return string
-     */
     public function contextFieldName(): string
     {
         return 'locale';
@@ -216,5 +220,12 @@ class Page extends Model
             'key' => $type,
             'value_for_robots' => $directive,
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
     }
 }
