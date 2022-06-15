@@ -225,7 +225,9 @@ class Page extends Resource
             }
 
             if ($field instanceof Field) {
-                $field->attribute = 'extras->'.$field->attribute;
+                if ($field->attribute !== 'ComputedField') {
+                    $field->attribute = 'extras->'.$field->attribute;
+                }
                 $field->hideFromIndex();
                 $fieldsWithoutPanel[] = $field;
                 unset($templateFields[$key]);
