@@ -99,7 +99,7 @@ class Page extends Resource
                 }
 
                 return sprintf(
-                    '<a href="%s" target="_blank" title="%s">%s</a>',
+                    '<a class="link-default" href="%s" target="_blank" title="%s">%s</a>',
                     $previewUrl,
                     e($this->resource->title),
                     e(Str::limit($this->resource->title, self::TITLE_TRUNCATE_LIMIT_CHARS))
