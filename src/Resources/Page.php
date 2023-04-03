@@ -48,17 +48,12 @@ class Page extends Resource
      *
      * @var array
      */
-    public static $search = [
-        'title',
-    ];
+    public static $search = ['title'];
 
     /**
      * Get the fields displayed by the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
      */
-    public function fields(Request $request)
+    public function fields(Request $request): array
     {
         $currentTemplateName = $this->resource->template;
         $templateFields = [];
@@ -82,7 +77,7 @@ class Page extends Resource
         ];
     }
 
-    protected function mainFields()
+    protected function mainFields(): array
     {
         $locales = config('laravel-nova-page-manager.locales', []);
         $templates = TemplatesHelper::getTemplates()->mapWithKeys(function ($template) {
@@ -159,7 +154,7 @@ class Page extends Resource
         ];
     }
 
-    protected function seoFields()
+    protected function seoFields(): array
     {
         return [
             Text::make(trans('laravel-nova-page-manager::page.seo_title'), 'seo_title')
@@ -186,7 +181,7 @@ class Page extends Resource
         ];
     }
 
-    protected function ogFields()
+    protected function ogFields(): array
     {
         return [
             Text::make(trans('laravel-nova-page-manager::page.og_title'), 'og_title')
@@ -241,7 +236,7 @@ class Page extends Resource
         }
 
         $fields = [];
-        if (!empty($fieldsWithoutPanel)) {
+        if (! empty($fieldsWithoutPanel)) {
             $fields['default_panel'] = Panel::make($templateName, $fieldsWithoutPanel);
         }
 
@@ -252,11 +247,8 @@ class Page extends Resource
 
     /**
      * Get the cards available for the request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
      */
-    public function cards(Request $request)
+    public function cards(Request $request): array
     {
         return [
             (new LaravelNovaContexts())->dynamicHeight(),
@@ -265,11 +257,8 @@ class Page extends Resource
 
     /**
      * Get the filters available for the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
      */
-    public function filters(Request $request)
+    public function filters(Request $request): array
     {
         return [
             new ContextFilter($this->model()),
@@ -279,22 +268,16 @@ class Page extends Resource
 
     /**
      * Get the lenses available for the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
      */
-    public function lenses(Request $request)
+    public function lenses(Request $request): array
     {
         return [];
     }
 
     /**
      * Get the actions available for the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
      */
-    public function actions(Request $request)
+    public function actions(Request $request): array
     {
         $locales = config('laravel-nova-page-manager.locales', []);
         if (count($locales) <= 1) {
@@ -308,12 +291,8 @@ class Page extends Resource
 
     /**
      * Perform any final formatting of the given validation rules.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  array  $rules
-     * @return array
      */
-    protected static function formatRules(NovaRequest $request, array $rules)
+    protected static function formatRules(NovaRequest $request, array $rules): array
     {
         $locales = config('laravel-nova-page-manager.locales', []);
         $locale = (count($locales) === 1) ? array_key_first($locales) : $request->get('locale', '');

@@ -13,7 +13,6 @@ use Spatie\Sluggable\SlugOptions;
 
 /**
  * Class Page
- * @package Novius\LaravelNovaPageManager\Models
  *
  * @property string title
  * @property string slug
@@ -41,31 +40,29 @@ class Page extends Model
     use HasSlug;
 
     public const ROBOTS_INDEX_FOLLOW = 1;
+
     public const ROBOTS_INDEX_NOFOLLOW = 2;
+
     public const ROBOTS_NOINDEX_NOFOLLOW = 3;
+
     public const ROBOTS_NOINDEX_FOLLOW = 4;
 
     protected $table = 'page_manager_pages';
 
-    protected $guarded = [
-        'id',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'extras' => 'json',
-    ];
-
-    protected $dates = [
         'publication_date',
         'end_publication_date',
+        'created_at',
+        'updated_at',
     ];
 
     /**
      * The "booted" method of the model.
-     *
-     * @return void
      */
-    protected static function booted()
+    protected static function booted(): void
     {
         static::saving(function ($page) {
             if ($page->exists && $page->id === $page->parent_id) {
@@ -108,7 +105,7 @@ class Page extends Model
             return false;
         }
 
-        if (!empty($this->end_publication_date) && $this->end_publication_date->isBefore(Carbon::now())) {
+        if (! empty($this->end_publication_date) && $this->end_publication_date->isBefore(Carbon::now())) {
             return false;
         }
 
@@ -140,7 +137,7 @@ class Page extends Model
     public function url(): ?string
     {
         $routeName = config('laravel-nova-page-manager.front_route_name');
-        if (empty($routeName) || !Route::has($routeName) || !$this->exists) {
+        if (empty($routeName) || ! Route::has($routeName) || ! $this->exists) {
             return null;
         }
 
@@ -152,7 +149,7 @@ class Page extends Model
     public function previewUrl(): ?string
     {
         $routeName = config('laravel-nova-page-manager.front_route_name');
-        if (empty($routeName) || !Route::has($routeName) || !$this->exists) {
+        if (empty($routeName) || ! Route::has($routeName) || ! $this->exists) {
             return null;
         }
 
@@ -160,7 +157,7 @@ class Page extends Model
             'slug' => $this->slug,
         ];
 
-        if (!$this->isPublished()) {
+        if (! $this->isPublished()) {
             $params['previewToken'] = $this->preview_token;
         }
 
@@ -177,7 +174,7 @@ class Page extends Model
         return in_array($this->seo_robots, static::robotsCanIndexStatus());
     }
 
-    public function robotsDirective():?string
+    public function robotsDirective(): ?string
     {
         if (empty($this->seo_robots)) {
             return null;
@@ -189,10 +186,10 @@ class Page extends Model
     public static function robotsDirectives(): array
     {
         return [
-          self::ROBOTS_INDEX_FOLLOW => 'index, follow',
-          self::ROBOTS_INDEX_NOFOLLOW => 'index, nofollow',
-          self::ROBOTS_NOINDEX_NOFOLLOW => 'noindex, nofollow',
-          self::ROBOTS_NOINDEX_FOLLOW => 'noindex, follow',
+            self::ROBOTS_INDEX_FOLLOW => 'index, follow',
+            self::ROBOTS_INDEX_NOFOLLOW => 'index, nofollow',
+            self::ROBOTS_NOINDEX_NOFOLLOW => 'noindex, nofollow',
+            self::ROBOTS_NOINDEX_FOLLOW => 'noindex, follow',
         ];
     }
 
@@ -204,8 +201,8 @@ class Page extends Model
     public static function robotsCanIndexStatus(): array
     {
         return [
-          self::ROBOTS_INDEX_FOLLOW,
-          self::ROBOTS_INDEX_NOFOLLOW,
+            self::ROBOTS_INDEX_FOLLOW,
+            self::ROBOTS_INDEX_NOFOLLOW,
         ];
     }
 

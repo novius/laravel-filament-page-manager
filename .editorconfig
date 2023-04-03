@@ -16,6 +16,3 @@ indent_size = 2
 
 [composer.json]
 indent_size = 4
-
-[docker-compose.yml]
-indent_size = 4

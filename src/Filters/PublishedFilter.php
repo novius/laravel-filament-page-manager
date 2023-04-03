@@ -8,6 +8,7 @@ use Laravel\Nova\Filters\Filter;
 class PublishedFilter extends Filter
 {
     public const PUBLISHED = 1;
+
     public const NOT_PUBLISHED = 2;
 
     /**
@@ -20,7 +21,6 @@ class PublishedFilter extends Filter
     /**
      * Apply the filter to the given query.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Builder
@@ -40,16 +40,12 @@ class PublishedFilter extends Filter
 
     /**
      * Get the filter's available options.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
      */
-    public function options(Request $request)
+    public function options(Request $request): array
     {
         return [
             'Publié' => self::PUBLISHED,
             'Non publié' => self::NOT_PUBLISHED,
         ];
     }
-
 }

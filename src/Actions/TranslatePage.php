@@ -15,8 +15,6 @@ class TranslatePage extends Action
     /**
      * Perform the action on the given models.
      *
-     * @param \Laravel\Nova\Fields\ActionFields $fields
-     * @param \Illuminate\Support\Collection $models
      * @return mixed
      */
     public function handle(ActionFields $fields, Collection $models)
@@ -31,7 +29,7 @@ class TranslatePage extends Action
             return Action::danger(trans('laravel-nova-page-manager::errors.menu_already_translated'));
         }
 
-        if (!empty($pageToTranslate->locale_parent_id)) {
+        if (! empty($pageToTranslate->locale_parent_id)) {
             $pageToTranslate = $pageToTranslate->localParent;
             if (empty($pageToTranslate)) {
                 return Action::danger(trans('laravel-nova-page-manager::errors.error_during_menu_translation'));
@@ -53,7 +51,7 @@ class TranslatePage extends Action
         $translatedItem->locale = $locale;
         $translatedItem->locale_parent_id = $pageToTranslate->id;
 
-        if (!$translatedItem->save()) {
+        if (! $translatedItem->save()) {
             return Action::danger(trans('laravel-nova-page-manager::errors.error_during_menu_translation'));
         }
 
@@ -62,11 +60,8 @@ class TranslatePage extends Action
 
     /**
      * Get the fields available on the action.
-     *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
-     * @return array
      */
-    public function fields(NovaRequest $request)
+    public function fields(NovaRequest $request): array
     {
         $locales = config('laravel-nova-page-manager.locales', []);
 

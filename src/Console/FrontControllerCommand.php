@@ -30,7 +30,7 @@ class FrontControllerCommand extends GeneratorCommand
     public function handle()
     {
         if (false !== parent::handle()) {
-            if (!is_file(base_path('routes/web.php'))) {
+            if (! is_file(base_path('routes/web.php'))) {
                 $this->warn('There is no routes/web.php file. Abort without generated new route.');
 
                 return;
@@ -53,21 +53,16 @@ class FrontControllerCommand extends GeneratorCommand
 
     /**
      * Get the desired class name from the input.
-     *
-     * @return string
      */
-    protected function getNameInput()
+    protected function getNameInput(): string
     {
         return 'FrontPageController';
     }
 
     /**
      * Resolve the fully-qualified path to the stub.
-     *
-     * @param  string  $stub
-     * @return string
      */
-    protected function resolveStubPath($stub)
+    protected function resolveStubPath(string $stub): string
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
@@ -76,10 +71,8 @@ class FrontControllerCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return $this->resolveStubPath('/stubs/controller.front.stub');
     }
@@ -88,19 +81,16 @@ class FrontControllerCommand extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace
-     * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Http\Controllers';
     }
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [];
     }

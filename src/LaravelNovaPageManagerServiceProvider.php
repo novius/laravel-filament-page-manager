@@ -12,10 +12,8 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-nova-page-manager');
 
@@ -61,10 +59,8 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/laravel-nova-page-manager.php',

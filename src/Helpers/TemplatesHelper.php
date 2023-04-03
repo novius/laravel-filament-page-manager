@@ -12,12 +12,12 @@ class TemplatesHelper
     {
         return collect(config('laravel-nova-page-manager.templates', []))
             ->map(function ($templateClass) use ($resource) {
-                if (!class_exists($templateClass)) {
+                if (! class_exists($templateClass)) {
                     return null;
                 }
 
                 $template = new $templateClass($resource);
-                if (!$template instanceof AbstractPageTemplate) {
+                if (! $template instanceof AbstractPageTemplate) {
                     return null;
                 }
 

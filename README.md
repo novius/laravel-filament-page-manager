@@ -4,7 +4,7 @@ This package allows you to manage pages with custom templates.
 
 ## Requirements
 
-* PHP >= 8.0
+* PHP >= 8.1
 * Laravel Nova >= 4.0
 
 ## Installation
