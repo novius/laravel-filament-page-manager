@@ -53,10 +53,10 @@ class Page extends Model
 
     protected $casts = [
         'extras' => 'json',
-        'publication_date',
-        'end_publication_date',
-        'created_at',
-        'updated_at',
+        'publication_date' => 'datetime',
+        'end_publication_date'  => 'datetime',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
     ];
 
     /**
