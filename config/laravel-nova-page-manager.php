@@ -16,6 +16,10 @@ return [
 
     'front_route_name' => 'page-manager.page',
 
+    'front_route_parameter' => 'page',
+
+    'guard_preview' => null,
+
     'templates' => [
         \Novius\LaravelNovaPageManager\Templates\DefaultTemplate::class,
     ],

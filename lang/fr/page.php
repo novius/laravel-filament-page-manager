@@ -6,9 +6,8 @@ return [
     'template' => 'Gabarit',
     'locale' => 'Langue',
     'parent' => 'Page parente',
-    'is_published' => 'Est-publiée ?',
-    'publication_date' => 'Date de publication',
-    'publication_end_date' => 'Date de fin de publication',
+    'publication' => 'Publication',
+    'preview_link' => 'Prévisualisation',
 
     'seo_title' => 'Meta title',
     'seo_description' => 'Meta description',

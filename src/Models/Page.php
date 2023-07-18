@@ -2,12 +2,15 @@
 
 namespace Novius\LaravelNovaPageManager\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use Novius\LaravelNovaContexts\Traits\HasContext;
+use Novius\LaravelPublishable\Enums\PublicationStatus;
+use Novius\LaravelPublishable\Traits\Publishable;
+use Novius\LaravelTranslatable\Traits\Translatable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -20,8 +23,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string template
  * @property int parent_id
  * @property int locale_parent_id
- * @property Carbon publication_date
- * @property Carbon end_publication_date
+ * @property PublicationStatus $publication_status
+ * @property Carbon|null $published_first_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $expired_at
  * @property string preview_token
  * @property string seo_title
  * @property string seo_description
@@ -36,8 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Page extends Model
 {
-    use HasContext;
     use HasSlug;
+    use Publishable;
+    use Translatable;
 
     public const ROBOTS_INDEX_FOLLOW = 1;
 
@@ -53,10 +59,6 @@ class Page extends Model
 
     protected $casts = [
         'extras' => 'json',
-        'publication_date' => 'datetime',
-        'end_publication_date' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**
@@ -80,11 +82,6 @@ class Page extends Model
         });
     }
 
-    public function localParent()
-    {
-        return $this->hasOne(static::class, 'id', 'locale_parent_id');
-    }
-
     public function parent()
     {
         return $this->belongsTo(static::class, 'parent_id');
@@ -95,78 +92,88 @@ class Page extends Model
         return $this->hasMany(static::class, 'parent_id', 'id');
     }
 
-    public function isPublished(): bool
-    {
-        if (empty($this->publication_date)) {
-            return false;
-        }
-
-        if ($this->publication_date->isAfter(Carbon::now())) {
-            return false;
-        }
-
-        if (! empty($this->end_publication_date) && $this->end_publication_date->isBefore(Carbon::now())) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function scopePublished($query)
-    {
-        return $query->whereNotNull('publication_date')
-            ->where('publication_date', '<=', DB::raw('NOW()'))
-            ->where(function ($query) {
-                $query->whereNull('end_publication_date')
-                    ->orWhere('end_publication_date', '>=', DB::raw('NOW()'));
-            });
-    }
-
-    public function scopeNotPublished($query)
-    {
-        return $query->whereNull('publication_date')
-            ->orWhere(function ($query) {
-                $query->where('publication_date', '>', DB::raw('NOW()'))
-                    ->orWhere(function ($query) {
-                        $query->whereNotNull('end_publication_date')
-                            ->where('end_publication_date', '<', DB::raw('NOW()'));
-                    });
-            });
-    }
-
     public function url(): ?string
     {
         $routeName = config('laravel-nova-page-manager.front_route_name');
-        if (empty($routeName) || ! Route::has($routeName) || ! $this->exists) {
+        $parameter = $this->getUrlParameter();
+
+        if ($routeName === null || ! $this->exists || ! $parameter) {
             return null;
         }
 
         return route($routeName, [
-            'slug' => $this->slug,
+            $parameter => $this->slug,
         ]);
     }
 
     public function previewUrl(): ?string
     {
         $routeName = config('laravel-nova-page-manager.front_route_name');
-        if (empty($routeName) || ! Route::has($routeName) || ! $this->exists) {
+        $parameter = $this->getUrlParameter();
+
+        if ($routeName === null || ! $this->exists || ! $parameter) {
             return null;
         }
 
         $params = [
-            'slug' => $this->slug,
+            $parameter => $this->slug,
         ];
 
-        if (! $this->isPublished()) {
+        $guard = config('laravel-nova-page-manager.guard_preview');
+        if (empty($guard) && ! $this->isPublished()) {
             $params['previewToken'] = $this->preview_token;
         }
 
         return route($routeName, $params);
     }
 
-    public function contextFieldName(): string
+    protected function getUrlParameter(): ?string
     {
-        return 'locale';
+        $parameter = config('laravel-nova-page-manager.front_route_parameter');
+
+        if (! empty($parameter)) {
+            return $parameter;
+        }
+
+        $routeName = config('laravel-nova-page-manager.front_route_name');
+        if (empty($routeName)) {
+            return null;
+        }
+
+        $route = Route::getRoutes()->getByName($routeName);
+        if (! $route) {
+            return null;
+        }
+
+        if (! preg_match('/({\w+})/', $route->uri(), $matches)) {
+            return null;
+        }
+
+        return substr($matches[0], 1, -1);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $guard = config('laravel-nova-page-manager.guard_preview');
+        if (! empty($guard) && Auth::guard($guard)->check()) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        if (request()->has('previewToken')) {
+            $query = static::where(function (Builder $query) {
+                $query->published()
+                    ->orWhere('preview_token', request()->get('previewToken'));
+            });
+
+            return $this->resolveRouteBindingQuery($query, $value, $field)->first();
+        }
+
+        return $this->resolveRouteBindingQuery(static::published(), $value, $field)->first();
     }
 
     public function canBeIndexedByRobots(): bool

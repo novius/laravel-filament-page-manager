@@ -6,9 +6,8 @@ return [
     'template' => 'Template',
     'locale' => 'Language',
     'parent' => 'Parent page',
-    'is_published' => 'Is-published ?',
-    'publication_date' => 'Publication date',
-    'publication_end_date' => 'Publication end',
+    'publication' => 'Publication',
+    'preview_link' => 'Preview',
 
     'seo_title' => 'Meta title',
     'seo_description' => 'Meta description',
