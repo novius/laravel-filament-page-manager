@@ -160,12 +160,14 @@ class Page extends Model
     public function resolveRouteBinding($value, $field = null)
     {
         $guard = config('laravel-nova-page-manager.guard_preview');
+        $query = static::where('locale', app()->currentLocale());
+
         if (! empty($guard) && Auth::guard($guard)->check()) {
-            return parent::resolveRouteBinding($value, $field);
+            return $this->resolveRouteBindingQuery($query, $value, $field)->first();
         }
 
         if (request()->has('previewToken')) {
-            $query = static::where(function (Builder $query) {
+            $query->where(function (Builder $query) {
                 $query->published()
                     ->orWhere('preview_token', request()->get('previewToken'));
             });
@@ -173,7 +175,7 @@ class Page extends Model
             return $this->resolveRouteBindingQuery($query, $value, $field)->first();
         }
 
-        return $this->resolveRouteBindingQuery(static::published(), $value, $field)->first();
+        return $this->resolveRouteBindingQuery($query->published(), $value, $field)->first();
     }
 
     public function canBeIndexedByRobots(): bool
