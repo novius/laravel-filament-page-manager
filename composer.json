@@ -20,7 +20,7 @@
         "laravel/nova": "^4.0",
         "novius/laravel-nova-field-preview": "^1.0.0",
         "novius/laravel-nova-publishable": "^2.0.0",
-        "novius/laravel-nova-translatable": "^0.0.1",
+        "novius/laravel-nova-translatable": "^0.0.3",
         "spatie/laravel-sluggable": "^3.4"
     },
     "require-dev": {
