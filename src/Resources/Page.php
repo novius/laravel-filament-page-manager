@@ -105,7 +105,7 @@ class Page extends Resource
                 ->rules('required', 'string', 'max:191')
                 ->sortable(),
 
-            Slug::make(trans('laravel-nova-menu::menu.slug'), 'slug')
+            Slug::make(trans('laravel-nova-page-manager::page.slug'), 'slug')
                 ->from('title')
                 ->sortable()
                 ->creationRules('required', 'string', 'max:191', 'pageSlug', 'uniquePage:{{resourceLocale}}')
