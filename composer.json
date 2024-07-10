@@ -15,12 +15,12 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
-        "illuminate/support": "^8.83.4|^9.3.1|^10.0",
+        "php": ">=8.2",
+        "illuminate/support": "^10.0|^11.0",
         "laravel/nova": "^4.0",
-        "novius/laravel-nova-field-preview": "^1.0.0",
-        "novius/laravel-nova-publishable": "^2.0.0",
-        "novius/laravel-nova-translatable": "^0.0.5",
+        "novius/laravel-nova-field-preview": "^2.0",
+        "novius/laravel-nova-publishable": "^2.0",
+        "novius/laravel-nova-translatable": "^1.0",
         "spatie/laravel-sluggable": "^3.4"
     },
     "require-dev": {

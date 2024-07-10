@@ -8,7 +8,7 @@ use Novius\LaravelNovaPageManager\Templates\AbstractPageTemplate;
 
 class TemplatesHelper
 {
-    public static function getTemplates(Resource $resource = null): Collection
+    public static function getTemplates(?Resource $resource = null): Collection
     {
         return collect(config('laravel-nova-page-manager.templates', []))
             ->map(function ($templateClass) use ($resource) {

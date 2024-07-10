@@ -29,7 +29,7 @@ class FrontControllerCommand extends GeneratorCommand
 
     public function handle()
     {
-        if (false !== parent::handle()) {
+        if (parent::handle() !== false) {
             if (! is_file(base_path('routes/web.php'))) {
                 $this->warn('There is no routes/web.php file. Abort without generated new route.');
 

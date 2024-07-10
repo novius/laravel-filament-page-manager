@@ -70,7 +70,7 @@ class Page extends Resource
         $templateFields = [];
         if ($this->model()->exists) {
             $template = TemplatesHelper::getTemplate($currentTemplateName, $this);
-            if (null !== $template) {
+            if ($template !== null) {
                 $templateFields = $this->normalizeTemplateFields($template->templateName(), $template->fields());
             }
         }

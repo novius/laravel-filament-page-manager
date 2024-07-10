@@ -9,7 +9,7 @@ abstract class AbstractPageTemplate implements PageTemplate
 {
     protected ?Resource $resource = null;
 
-    public function __construct(Resource $resource = null)
+    public function __construct(?Resource $resource = null)
     {
         $this->resource = $resource;
     }
