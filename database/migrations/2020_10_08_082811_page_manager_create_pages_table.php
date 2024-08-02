@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('page_manager_pages', function (Blueprint $table) {
+        Schema::create('page_manager_pages', static function (Blueprint $table) {
             $table->id();
 
             $table->string('title', 191);
@@ -28,8 +28,7 @@ return new class extends Migration
 
             $table->string('seo_title');
             $table->string('seo_description');
-            $table->unsignedTinyInteger('seo_robots')
-                ->default(\Novius\LaravelNovaPageManager\Models\Page::ROBOTS_INDEX_FOLLOW);
+            $table->unsignedTinyInteger('seo_robots')->default(1);
             $table->string('seo_canonical_url')->nullable();
 
             $table->string('og_title')->nullable();

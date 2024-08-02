@@ -43,6 +43,8 @@ php artisan page-manager:publish-front
 
 This command appends a route to `routes/web.php` and creates a new `App\Http\Controllers\FrontPageController`.
 
+In Page templates use the documentation of [laravel-meta](https://github.com/novius/laravel-meta?tab=readme-ov-file#front) to implement meta tags
+
 ## Configuration
 
 Some options that you can override are available.
@@ -128,7 +130,7 @@ composer run-script lint
 
 Contributions are welcome!
 
-Leave an issue on Github, or create a Pull Request.
+Leave an issue on GitHub, or create a Pull Request.
 
 ## Licence
 

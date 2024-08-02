@@ -8,14 +8,13 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
+use Novius\LaravelMeta\Traits\NovaResourceHasMeta;
 use Novius\LaravelNovaFieldPreview\Nova\Fields\OpenPreview;
 use Novius\LaravelNovaPageManager\Helpers\TemplatesHelper;
 use Novius\LaravelNovaPublishable\Nova\Fields\ExpiredAt;
@@ -31,14 +30,19 @@ use Novius\LaravelNovaTranslatable\Nova\Filters\LocaleFilter;
 
 class Page extends Resource
 {
+    use NovaResourceHasMeta;
+
     public const TITLE_TRUNCATE_LIMIT_CHARS = 25;
 
     /**
      * The model the resource corresponds to.
      *
-     * @var string
+     * @var class-string<\Novius\LaravelNovaPageManager\Models\Page>
      */
-    public static $model = \Novius\LaravelNovaPageManager\Models\Page::class;
+    public static string $model = \Novius\LaravelNovaPageManager\Models\Page::class;
+
+    /** @var \Novius\LaravelNovaPageManager\Models\Page|null */
+    public $resource;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -81,9 +85,13 @@ class Page extends Resource
 
             new Panel(trans('laravel-nova-page-manager::page.panel_main'), $this->mainFields()),
 
-            new Panel(trans('laravel-nova-page-manager::page.panel_seo'), $this->seoFields()),
-
-            new Panel(trans('laravel-nova-page-manager::page.panel_og'), $this->ogFields()),
+            new Panel(
+                trans('laravel-nova-page-manager::page.panel_seo'),
+                $this->getSEONovaFields()
+                    ->prepend(Text::make(trans('laravel-nova-page-manager::page.seo_canonical_url'), 'meta->seo_canonical_url')
+                        ->rules('nullable', 'string', 'url', 'max:191')
+                        ->hideFromIndex())
+            ),
 
             ...$templateFields,
         ];
@@ -91,11 +99,9 @@ class Page extends Resource
 
     protected function mainFields(): array
     {
-        $templates = TemplatesHelper::getTemplates()->mapWithKeys(function ($template) {
-            return [
-                $template['template']->templateUniqueKey() => $template['template']->templateName(),
-            ];
-        })->all();
+        $templates = TemplatesHelper::getTemplates()->mapWithKeys(fn ($template) => [
+            $template['template']->templateUniqueKey() => $template['template']->templateName(),
+        ])->all();
 
         return [
             Text::make(trans('laravel-nova-page-manager::page.title'), 'title')
@@ -134,59 +140,6 @@ class Page extends Resource
         ];
     }
 
-    protected function seoFields(): array
-    {
-        return [
-            Text::make(trans('laravel-nova-page-manager::page.seo_title'), 'seo_title')
-                ->rules('required', 'string', 'max:191')
-                ->hideFromIndex(),
-
-            Textarea::make(trans('laravel-nova-page-manager::page.seo_description'), 'seo_description')
-                ->rules('required', 'string', 'max:191')
-                ->hideFromIndex(),
-
-            Select::make(trans('laravel-nova-page-manager::page.seo_robots'), 'seo_robots')
-                ->rules('required', 'in:'.implode(',', array_keys($this->model()->robotsDirectives())))
-                ->options(
-                    $this->model()->robotsDirectives()
-                )
-                ->resolveUsing(fn ($value) => $value ?? \Novius\LaravelNovaPageManager\Models\Page::ROBOTS_INDEX_FOLLOW)
-                ->help(trans('laravel-nova-page-manager::page.seo_robots_default_help'))
-                ->displayUsing((fn ($value) => \Novius\LaravelNovaPageManager\Models\Page::findRobotDirective($value)['value_for_robots'] ?? $value))
-                ->hideFromIndex(),
-
-            Text::make(trans('laravel-nova-page-manager::page.seo_canonical_url'), 'seo_canonical_url')
-                ->rules('nullable', 'string', 'url', 'max:191')
-                ->hideFromIndex(),
-        ];
-    }
-
-    protected function ogFields(): array
-    {
-        return [
-            Text::make(trans('laravel-nova-page-manager::page.og_title'), 'og_title')
-                ->rules('nullable', 'string', 'max:191')
-                ->hideFromIndex(),
-
-            Textarea::make(trans('laravel-nova-page-manager::page.og_description'), 'og_description')
-                ->rules('nullable', 'string', 'max:191')
-                ->hideFromIndex(),
-
-            Image::make(trans('laravel-nova-page-manager::page.og_image'), 'og_image')
-                ->maxWidth(500)
-                ->prunable()
-                ->store(function (Request $request, $model) {
-                    return [
-                        'og_image' => $request->og_image->store(
-                            config('laravel-nova-page-manager.og_image_path', '/'),
-                            config('laravel-nova-page-manager.og_image_disk', 'public')
-                        ),
-                    ];
-                })
-                ->hideFromIndex(),
-        ];
-    }
-
     protected function normalizeTemplateFields(string $templateName, array $templateFields): array
     {
         $fieldsWithoutPanel = [];
@@ -209,7 +162,7 @@ class Page extends Resource
             }
 
             if ($field instanceof Panel) {
-                foreach ($field->data as &$panelField) {
+                foreach ($field->data as $panelField) {
                     $panelField->attribute = 'extras->'.$panelField->attribute;
                 }
             }
@@ -231,7 +184,7 @@ class Page extends Resource
     public function cards(Request $request): array
     {
         return [
-            new Locales(),
+            new Locales,
         ];
     }
 
@@ -241,8 +194,8 @@ class Page extends Resource
     public function filters(Request $request): array
     {
         return [
-            new LocaleFilter(),
-            new PublicationStatus(),
+            new LocaleFilter,
+            new PublicationStatus,
         ];
     }
 
@@ -280,12 +233,13 @@ class Page extends Resource
             return $rules;
         }
 
-        return collect($rules)->map(function ($rules) use ($replacements) {
-            return collect($rules)->map(function ($rule) use ($replacements) {
-                return is_string($rule)
-                    ? str_replace(array_keys($replacements), array_values($replacements), $rule)
-                    : $rule;
-            })->all();
-        })->all();
+        return collect($rules)
+            ->map(
+                fn ($rules) => collect($rules)->map(
+                    fn ($rule) => is_string($rule) ?
+                        str_replace(array_keys($replacements), array_values($replacements), $rule) :
+                        $rule
+                )->all()
+            )->all();
     }
 }
