@@ -14,7 +14,7 @@ return new class extends Migration
             $table->addMeta();
         });
 
-        DB::table('page_manager_pages')->chunk(100, function ($pages) {
+        DB::table('page_manager_pages')->orderBy('id')->chunk(100, function ($pages) {
             foreach ($pages as $page) {
                 $meta = [
                     'seo_robots' => match ($page->seo_robots) {
@@ -34,7 +34,7 @@ return new class extends Migration
                     'meta' => json_encode($meta, JSON_THROW_ON_ERROR),
                 ]);
             }
-        })();
+        });
 
         Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dropColumn([
@@ -62,7 +62,7 @@ return new class extends Migration
             $table->string('og_image')->nullable();
         });
 
-        DB::table('page_manager_pages')->chunk(100, function ($pages) {
+        DB::table('page_manager_pages')->orderBy('id')->chunk(100, function ($pages) {
             foreach ($pages as $page) {
                 $meta = json_decode($page->meta, false, 512, JSON_THROW_ON_ERROR);
                 DB::table('page_manager_pages')->where('id', $page->id)->update([
