@@ -14,26 +14,27 @@ return new class extends Migration
             $table->addMeta();
         });
 
-        $pages = DB::table('page_manager_pages')->get();
-        foreach ($pages as $page) {
-            $meta = [
-                'seo_robots' => match ($page->seo_robots) {
-                    1 => IndexFollow::index_follow->value,
-                    2 => IndexFollow::index_nofollow->value,
-                    3 => IndexFollow::noindex_nofollow->value,
-                    4 => IndexFollow::noindex_follow->value,
-                },
-                'seo_title' => $page->seo_title,
-                'seo_description' => $page->seo_description,
-                'seo_canonical_url' => $page->seo_canonical_url,
-                'og_title' => $page->og_title,
-                'og_description' => $page->og_description,
-                'og_image' => $page->og_image,
-            ];
-            DB::table('page_manager_pages')->where('id', $page->id)->update([
-                'meta' => json_encode($meta, JSON_THROW_ON_ERROR),
-            ]);
-        }
+        DB::table('page_manager_pages')->chunk(100, function ($pages) {
+            foreach ($pages as $page) {
+                $meta = [
+                    'seo_robots' => match ($page->seo_robots) {
+                        1 => IndexFollow::index_follow->value,
+                        2 => IndexFollow::index_nofollow->value,
+                        3 => IndexFollow::noindex_nofollow->value,
+                        4 => IndexFollow::noindex_follow->value,
+                    },
+                    'seo_title' => $page->seo_title,
+                    'seo_description' => $page->seo_description,
+                    'seo_canonical_url' => $page->seo_canonical_url,
+                    'og_title' => $page->og_title,
+                    'og_description' => $page->og_description,
+                    'og_image' => $page->og_image,
+                ];
+                DB::table('page_manager_pages')->where('id', $page->id)->update([
+                    'meta' => json_encode($meta, JSON_THROW_ON_ERROR),
+                ]);
+            }
+        })();
 
         Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dropColumn([
@@ -61,19 +62,20 @@ return new class extends Migration
             $table->string('og_image')->nullable();
         });
 
-        $pages = DB::table('page_manager_pages')->get();
-        foreach ($pages as $page) {
-            $meta = json_decode($page->meta, false, 512, JSON_THROW_ON_ERROR);
-            DB::table('page_manager_pages')->where('id', $page->id)->update([
-                'seo_robots' => $meta->seo_robots ?? 1,
-                'seo_title' => $meta->seo_title ?? null,
-                'seo_description' => $meta->seo_description ?? null,
-                'seo_canonical_url' => $page->seo_canonical_url ?? null,
-                'og_title' => $meta->og_title ?? null,
-                'og_description' => $meta->og_description ?? null,
-                'og_image' => $meta->og_image ?? null,
-            ]);
-        }
+        DB::table('page_manager_pages')->chunk(100, function ($pages) {
+            foreach ($pages as $page) {
+                $meta = json_decode($page->meta, false, 512, JSON_THROW_ON_ERROR);
+                DB::table('page_manager_pages')->where('id', $page->id)->update([
+                    'seo_robots' => $meta->seo_robots ?? 1,
+                    'seo_title' => $meta->seo_title ?? null,
+                    'seo_description' => $meta->seo_description ?? null,
+                    'seo_canonical_url' => $page->seo_canonical_url ?? null,
+                    'og_title' => $meta->og_title ?? null,
+                    'og_description' => $meta->og_description ?? null,
+                    'og_image' => $meta->og_image ?? null,
+                ]);
+            }
+        });
 
         Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dropColumn('meta');
