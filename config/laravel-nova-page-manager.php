@@ -1,9 +1,12 @@
 <?php
 
+use Novius\LaravelNovaPageManager\Resources\Page;
+use Novius\LaravelNovaPageManager\Templates\DefaultTemplate;
+
 return [
 
     'resources' => [
-        \Novius\LaravelNovaPageManager\Resources\Page::class,
+        Page::class,
     ],
 
     'locales' => [
@@ -21,6 +24,6 @@ return [
     'guard_preview' => null,
 
     'templates' => [
-        \Novius\LaravelNovaPageManager\Templates\DefaultTemplate::class,
+        DefaultTemplate::class,
     ],
 ];

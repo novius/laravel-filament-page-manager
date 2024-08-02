@@ -37,11 +37,11 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
             ]);
         }
 
-        Validator::extend('pageSlug', function ($attr, $value) {
+        Validator::extend('pageSlug', static function ($attr, $value) {
             return is_string($value) && preg_match('/^[a-zA-Z0-9-_]+$/', $value);
         });
 
-        Validator::extend('uniquePage', function ($attr, $value, $parameters) {
+        Validator::extend('uniquePage', static function ($attr, $value, $parameters) {
             if (empty($parameters[0])) {
                 return false;
             }
@@ -53,7 +53,7 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
                 $query->where('id', '<>', $resourceId);
             }
 
-            return empty($query->first());
+            return $query->first() === null;
         });
     }
 

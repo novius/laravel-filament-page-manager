@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('page_manager_pages', function (Blueprint $table) {
+        Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->enum('publication_status', array_column(PublicationStatus::cases(), 'value'))
                 ->default(PublicationStatus::draft->value)
                 ->after('locale_parent_id');
@@ -37,14 +37,14 @@ return new class extends Migration
         DB::statement('UPDATE page_manager_pages SET publication_status = ?, published_first_at = created_at, expired_at = end_publication_date
                           WHERE publication_date IS NULL AND end_publication_date IS NOT NULL', [PublicationStatus::unpublished->value]);
 
-        Schema::table('page_manager_pages', function (Blueprint $table) {
+        Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dropColumn(['publication_date', 'end_publication_date']);
         });
     }
 
     public function down(): void
     {
-        Schema::table('page_manager_pages', function (Blueprint $table) {
+        Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dateTime('publication_date')->nullable()->after('locale_parent_id');
             $table->dateTime('end_publication_date')->nullable()->after('publication_date');
         });
@@ -58,7 +58,7 @@ return new class extends Migration
         DB::statement('UPDATE page_manager_pages SET publication_date = null, end_publication_date = expired_at
                           WHERE publication_status = ?', [PublicationStatus::unpublished->value]);
 
-        Schema::table('page_manager_pages', function (Blueprint $table) {
+        Schema::table('page_manager_pages', static function (Blueprint $table) {
             $table->dropPublishable();
         });
     }

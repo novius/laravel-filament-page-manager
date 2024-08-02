@@ -2,15 +2,26 @@
 
 namespace Novius\LaravelNovaPageManager\Models;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Novius\LaravelMeta\Enums\IndexFollow;
+use Novius\LaravelMeta\MetaModelConfig;
+use Novius\LaravelMeta\Traits\HasMeta;
 use Novius\LaravelPublishable\Enums\PublicationStatus;
 use Novius\LaravelPublishable\Traits\Publishable;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -28,30 +39,38 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $published_at
  * @property Carbon|null $expired_at
  * @property string preview_token
- * @property string seo_title
- * @property string seo_description
- * @property int seo_robots
- * @property string seo_canonical_url
- * @property string og_title
- * @property string og_description
- * @property string og_image
  * @property array extras
  * @property Carbon created_at
  * @property Carbon updated_at
+ * @property-read string|null $seo_robots
+ * @property-read string|null $seo_title
+ * @property-read string|null $seo_description
+ * @property-read string|null $seo_keywords
+ * @property-read string|null $seo_canonical_url
+ * @property-read string|null $og_type
+ * @property-read string|null $og_title
+ * @property-read string|null $og_description
+ * @property-read string|null $og_image
+ * @property-read string|null $og_image_url
+ *
+ * @method static Builder|Page newModelQuery()
+ * @method static Builder|Page newQuery()
+ * @method static Builder|Page notPublished()
+ * @method static Builder|Page onlyDrafted()
+ * @method static Builder|Page onlyExpired()
+ * @method static Builder|Page onlyWillBePublished()
+ * @method static Builder|Page published()
+ * @method static Builder|Page query()
+ * @method static Builder|Page withLocale(?string $locale)
+ *
+ * @mixin Eloquent
  */
 class Page extends Model
 {
+    use HasMeta;
     use HasSlug;
     use Publishable;
     use Translatable;
-
-    public const ROBOTS_INDEX_FOLLOW = 1;
-
-    public const ROBOTS_INDEX_NOFOLLOW = 2;
-
-    public const ROBOTS_NOINDEX_NOFOLLOW = 3;
-
-    public const ROBOTS_NOINDEX_FOLLOW = 4;
 
     protected $table = 'page_manager_pages';
 
@@ -66,9 +85,9 @@ class Page extends Model
      */
     protected static function booted(): void
     {
-        static::saving(function ($page) {
+        static::saving(static function ($page) {
             if ($page->exists && $page->id === $page->parent_id) {
-                throw new \Exception('Page : parent_id can\'t be same as primary key.');
+                throw new RuntimeException('Page : parent_id can\'t be same as primary key.');
             }
 
             if (empty($page->preview_token)) {
@@ -82,12 +101,12 @@ class Page extends Model
         });
     }
 
-    public function parent()
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(static::class, 'parent_id');
     }
 
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(static::class, 'parent_id', 'id');
     }
@@ -152,7 +171,7 @@ class Page extends Model
         return substr($matches[0], 1, -1);
     }
 
-    public function getRouteKeyName()
+    public function getRouteKeyName(): string
     {
         return 'slug';
     }
@@ -167,7 +186,10 @@ class Page extends Model
         }
 
         if (request()->has('previewToken')) {
-            $query->where(function (Builder $query) {
+            $query->where(/**
+             * @throws ContainerExceptionInterface
+             * @throws NotFoundExceptionInterface
+             */ function (Builder $query) {
                 $query->published()
                     ->orWhere('preview_token', request()->get('previewToken'));
             });
@@ -178,61 +200,33 @@ class Page extends Model
         return $this->resolveRouteBindingQuery($query->published(), $value, $field)->first();
     }
 
-    public function canBeIndexedByRobots(): bool
-    {
-        return in_array($this->seo_robots, static::robotsCanIndexStatus());
-    }
-
-    public function robotsDirective(): ?string
-    {
-        if (empty($this->seo_robots)) {
-            return null;
-        }
-
-        return static::findRobotDirective($this->seo_robots)['value_for_robots'] ?? null;
-    }
-
-    public static function robotsDirectives(): array
-    {
-        return [
-            self::ROBOTS_INDEX_FOLLOW => 'index, follow',
-            self::ROBOTS_INDEX_NOFOLLOW => 'index, nofollow',
-            self::ROBOTS_NOINDEX_NOFOLLOW => 'noindex, nofollow',
-            self::ROBOTS_NOINDEX_FOLLOW => 'noindex, follow',
-        ];
-    }
-
-    /**
-     * Get all robots status "indexable"
-     *
-     * @return array|int[]
-     */
-    public static function robotsCanIndexStatus(): array
-    {
-        return [
-            self::ROBOTS_INDEX_FOLLOW,
-            self::ROBOTS_INDEX_NOFOLLOW,
-        ];
-    }
-
-    public static function findRobotDirective(int $type): ?array
-    {
-        $directive = static::robotsDirectives()[$type] ?? null;
-        if (empty($directive)) {
-            return null;
-        }
-
-        return [
-            'key' => $type,
-            'value_for_robots' => $directive,
-        ];
-    }
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function getMetaConfig(): MetaModelConfig
+    {
+        if (! isset($this->metaConfig)) {
+            $this->metaConfig = MetaModelConfig::make()
+                ->setDefaultSeoRobots(IndexFollow::index_follow)
+                ->setFallbackTitle('title')
+                ->setOgImageDisk(config('laravel-nova-page-manager.og_image_disk', 'public'))
+                ->setOgImagePath(config('laravel-nova-page-manager.og_image_path', '/'));
+        }
+
+        return $this->metaConfig;
+    }
+
+    protected function seoCanonicalUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return Arr::get($this->{$this->getMetaColumn()}, 'seo_canonical_url', $this->url());
+            }
+        );
     }
 }

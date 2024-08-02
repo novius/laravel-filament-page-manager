@@ -1,4 +1,4 @@
 
-Route::get('{slug}', \App\Http\Controllers\FrontPageController::class)
-    ->where(['slug' => '^((?!admin)(?!nova-api)(?!nova-vendor).)*$'])
+Route::get('{page}', \App\Http\Controllers\FrontPageController::class)
+    ->where(['page' => '^((?!admin)(?!nova-api)(?!nova-vendor).)*$'])
     ->name('{{frontPageRouteName}}');

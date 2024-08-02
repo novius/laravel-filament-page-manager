@@ -27,7 +27,7 @@ class FrontControllerCommand extends GeneratorCommand
      */
     protected $type = 'Controller';
 
-    public function handle()
+    public function handle(): void
     {
         if (parent::handle() !== false) {
             if (! is_file(base_path('routes/web.php'))) {
