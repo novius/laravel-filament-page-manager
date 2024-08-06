@@ -5,6 +5,7 @@ namespace Novius\LaravelNovaPageManager;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Nova;
+use Novius\LaravelLinkable\Facades\Linkable;
 use Novius\LaravelNovaPageManager\Console\FrontControllerCommand;
 use Novius\LaravelNovaPageManager\Models\Page;
 
@@ -19,6 +20,10 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             Nova::resources(config('laravel-nova-page-manager.resources', []));
+        });
+
+        $this->app->booted(function () {
+            Linkable::addModels([Page::class]);
         });
 
         $packageDir = dirname(__DIR__);

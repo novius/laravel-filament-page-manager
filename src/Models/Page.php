@@ -10,17 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Novius\LaravelLinkable\Configs\LinkableConfig;
+use Novius\LaravelLinkable\Traits\Linkable;
 use Novius\LaravelMeta\Enums\IndexFollow;
 use Novius\LaravelMeta\MetaModelConfig;
 use Novius\LaravelMeta\Traits\HasMeta;
 use Novius\LaravelPublishable\Enums\PublicationStatus;
 use Novius\LaravelPublishable\Traits\Publishable;
 use Novius\LaravelTranslatable\Traits\Translatable;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -69,6 +67,7 @@ class Page extends Model
 {
     use HasMeta;
     use HasSlug;
+    use Linkable;
     use Publishable;
     use Translatable;
 
@@ -111,93 +110,9 @@ class Page extends Model
         return $this->hasMany(static::class, 'parent_id', 'id');
     }
 
-    public function url(): ?string
-    {
-        $routeName = config('laravel-nova-page-manager.front_route_name');
-        $parameter = $this->getUrlParameter();
-
-        if ($routeName === null || ! $this->exists || ! $parameter) {
-            return null;
-        }
-
-        return route($routeName, [
-            $parameter => $this->slug,
-        ]);
-    }
-
-    public function previewUrl(): ?string
-    {
-        $routeName = config('laravel-nova-page-manager.front_route_name');
-        $parameter = $this->getUrlParameter();
-
-        if ($routeName === null || ! $this->exists || ! $parameter) {
-            return null;
-        }
-
-        $params = [
-            $parameter => $this->slug,
-        ];
-
-        $guard = config('laravel-nova-page-manager.guard_preview');
-        if (empty($guard) && ! $this->isPublished()) {
-            $params['previewToken'] = $this->preview_token;
-        }
-
-        return route($routeName, $params);
-    }
-
-    protected function getUrlParameter(): ?string
-    {
-        $parameter = config('laravel-nova-page-manager.front_route_parameter');
-
-        if (! empty($parameter)) {
-            return $parameter;
-        }
-
-        $routeName = config('laravel-nova-page-manager.front_route_name');
-        if (empty($routeName)) {
-            return null;
-        }
-
-        $route = Route::getRoutes()->getByName($routeName);
-        if (! $route) {
-            return null;
-        }
-
-        if (! preg_match('/({\w+})/', $route->uri(), $matches)) {
-            return null;
-        }
-
-        return substr($matches[0], 1, -1);
-    }
-
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function resolveRouteBinding($value, $field = null)
-    {
-        $guard = config('laravel-nova-page-manager.guard_preview');
-        $query = static::where('locale', app()->currentLocale());
-
-        if (! empty($guard) && Auth::guard($guard)->check()) {
-            return $this->resolveRouteBindingQuery($query, $value, $field)->first();
-        }
-
-        if (request()->has('previewToken')) {
-            $query->where(/**
-             * @throws ContainerExceptionInterface
-             * @throws NotFoundExceptionInterface
-             */ function (Builder $query) {
-                $query->published()
-                    ->orWhere('preview_token', request()->get('previewToken'));
-            });
-
-            return $this->resolveRouteBindingQuery($query, $value, $field)->first();
-        }
-
-        return $this->resolveRouteBindingQuery($query->published(), $value, $field)->first();
     }
 
     public function getSlugOptions(): SlugOptions
@@ -219,6 +134,29 @@ class Page extends Model
         }
 
         return $this->metaConfig;
+    }
+
+    protected LinkableConfig $_linkableConfig;
+
+    public function linkableConfig(): LinkableConfig
+    {
+        if (! isset($this->_linkableConfig)) {
+            $this->_linkableConfig = new LinkableConfig(
+                routeName: config('laravel-nova-page-manager.front_route_name'),
+                routeParameterName: config('laravel-nova-page-manager.front_route_parameter'),
+                optionLabel: 'title',
+                optionGroup: trans('laravel-nova-page-manager::page.linkableGroup'),
+                resolveQuery: function (Builder|Page $query) {
+                    $query->where('locale', app()->currentLocale());
+                },
+                resolveNotPreviewQuery: function (Builder|Page $query) {
+                    $query->published();
+                },
+                previewTokenField: 'preview_token'
+            );
+        }
+
+        return $this->_linkableConfig;
     }
 
     protected function seoCanonicalUrl(): Attribute

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'linkableGroup' => 'Pages',
+
     'title' => 'Title',
     'slug' => 'Slug',
     'template' => 'Template',
