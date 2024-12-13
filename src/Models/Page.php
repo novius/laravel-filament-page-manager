@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Novius\LaravelJsonCasted\Casts\JsonWithCasts;
 use Novius\LaravelLinkable\Configs\LinkableConfig;
 use Novius\LaravelLinkable\Traits\Linkable;
 use Novius\LaravelMeta\Enums\IndexFollow;
 use Novius\LaravelMeta\MetaModelConfig;
 use Novius\LaravelMeta\Traits\HasMeta;
+use Novius\LaravelNovaPageManager\Helpers\TemplatesHelper;
 use Novius\LaravelPublishable\Enums\PublicationStatus;
 use Novius\LaravelPublishable\Traits\Publishable;
 use Novius\LaravelTranslatable\Traits\Translatable;
@@ -76,7 +78,7 @@ class Page extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'extras' => 'json',
+        'extras' => JsonWithCasts::class.':getExtrasCasts',
     ];
 
     /**
@@ -157,6 +159,13 @@ class Page extends Model
         }
 
         return $this->_linkableConfig;
+    }
+
+    public function getExtrasCasts(): array
+    {
+        $template = $this->template ? TemplatesHelper::getTemplate($this->template) : null;
+
+        return $template?->casts() ?? [];
     }
 
     protected function seoCanonicalUrl(): Attribute

@@ -28,7 +28,7 @@ class TemplatesHelper
             })->filter();
     }
 
-    public static function getTemplate(string $templateKey, Resource $resource): ?AbstractPageTemplate
+    public static function getTemplate(string $templateKey, ?Resource $resource = null): ?AbstractPageTemplate
     {
         $template = static::getTemplates($resource)->firstWhere('templateKey', $templateKey);
         if (empty($template)) {

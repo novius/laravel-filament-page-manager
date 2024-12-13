@@ -13,4 +13,9 @@ abstract class AbstractPageTemplate implements PageTemplate
     {
         $this->resource = $resource;
     }
+
+    public function casts(): array
+    {
+        return [];
+    }
 }

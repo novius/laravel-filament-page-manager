@@ -9,4 +9,6 @@ interface PageTemplate
     public function templateName(): string;
 
     public function fields(): array;
+
+    public function casts(): array;
 }

@@ -94,6 +94,7 @@ In `app/Nova/Templates/StandardTemplate.php`
 
 namespace App\Nova\Templates;
 
+use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Trix;
 use Novius\LaravelNovaPageManager\Templates\AbstractPageTemplate;
 
@@ -112,11 +113,30 @@ class StandardTemplate extends AbstractPageTemplate
     public function fields(): array
     {
         return [
-            Trix::make(trans('laravel-nova-page-manager::template.field_content'), 'content'),
+            Trix::make('Content', 'content'),
+            Date::make('Date', 'date'),
+        ];
+    }
+    
+    public function casts() : array
+    {
+        return [
+            'date' => 'date',        
         ];
     }
 }
 ``` 
+
+Pour utiliser les champs spécifique du template :
+
+```php
+$page = \Novius\LaravelNovaPageManager\Models\Page::where('template', 'standard')->first();
+
+$content = $page->extras['content'];
+
+// Date will be a Carbon instance, thanks to the cast
+$date = $page->extras['date'];
+```
 
 ## Lint
 

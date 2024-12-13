@@ -19,6 +19,7 @@
         "illuminate/support": "^10.0|^11.0",
         "laravel/nova": "^4.0",
         "novius/laravel-linkable": "^1.0",
+        "novius/laravel-json-casted": "^1.0.0",
         "novius/laravel-meta": "^1.0",
         "novius/laravel-nova-field-preview": "^2.0",
         "novius/laravel-nova-publishable": "^3.0",
