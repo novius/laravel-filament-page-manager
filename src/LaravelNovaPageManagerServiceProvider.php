@@ -52,7 +52,8 @@ class LaravelNovaPageManagerServiceProvider extends ServiceProvider
             }
 
             $resourceId = $parameters[1] ?? null;
-            $query = Page::where('locale', $parameters[0])
+            $query = Page::query()
+                ->where('locale', $parameters[0])
                 ->where('slug', $value);
             if ($resourceId) {
                 $query->where('id', '<>', $resourceId);

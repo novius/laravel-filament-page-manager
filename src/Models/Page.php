@@ -2,7 +2,6 @@
 
 namespace Novius\LaravelNovaPageManager\Models;
 
-use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -28,20 +27,20 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * Class Page
  *
- * @property string title
- * @property string slug
- * @property string locale
- * @property string template
- * @property int parent_id
- * @property int locale_parent_id
+ * @property string $title
+ * @property string $slug
+ * @property string $locale
+ * @property string $template
+ * @property int $parent_id
+ * @property int $locale_parent_id
  * @property PublicationStatus $publication_status
  * @property Carbon|null $published_first_at
  * @property Carbon|null $published_at
  * @property Carbon|null $expired_at
- * @property string preview_token
- * @property array extras
- * @property Carbon created_at
- * @property Carbon updated_at
+ * @property string $preview_token
+ * @property array $extras
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read string|null $seo_robots
  * @property-read string|null $seo_title
  * @property-read string|null $seo_description
@@ -63,7 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Page query()
  * @method static Builder|Page withLocale(?string $locale)
  *
- * @mixin Eloquent
+ * @mixin Model
  */
 class Page extends Model
 {

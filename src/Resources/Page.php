@@ -17,6 +17,7 @@ use Laravel\Nova\Resource;
 use Novius\LaravelMeta\Traits\NovaResourceHasMeta;
 use Novius\LaravelNovaFieldPreview\Nova\Fields\OpenPreview;
 use Novius\LaravelNovaPageManager\Helpers\TemplatesHelper;
+use Novius\LaravelNovaPageManager\Models\Page as PageModel;
 use Novius\LaravelNovaPublishable\Nova\Fields\ExpiredAt;
 use Novius\LaravelNovaPublishable\Nova\Fields\PublicationBadge;
 use Novius\LaravelNovaPublishable\Nova\Fields\PublicationStatus as PublicationStatusField;
@@ -28,6 +29,9 @@ use Novius\LaravelNovaTranslatable\Nova\Fields\Locale;
 use Novius\LaravelNovaTranslatable\Nova\Fields\Translations;
 use Novius\LaravelNovaTranslatable\Nova\Filters\LocaleFilter;
 
+/**
+ * @extends Resource<PageModel>
+ */
 class Page extends Resource
 {
     use NovaResourceHasMeta;
@@ -37,11 +41,11 @@ class Page extends Resource
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Novius\LaravelNovaPageManager\Models\Page>
+     * @var class-string<PageModel>
      */
-    public static string $model = \Novius\LaravelNovaPageManager\Models\Page::class;
+    public static string $model = PageModel::class;
 
-    /** @var \Novius\LaravelNovaPageManager\Models\Page|null */
+    /** @var PageModel|null */
     public $resource;
 
     /**
