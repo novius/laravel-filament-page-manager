@@ -15,9 +15,9 @@
         }
     ],
     "require": {
-        "php": ">=8.3",
+        "php": ">=8.2",
         "filament/filament": "^3.3",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^11.0 | ^12.0",
         "novius/laravel-json-casted": "^1.0.0",
         "novius/laravel-linkable": "^1.0",
         "novius/laravel-meta": "dev-main",
@@ -45,14 +45,14 @@
         }
     },
     "scripts": {
-        "fmt": [
+        "cs-fix": [
             "./vendor/bin/pint -v"
         ],
         "lint": [
-            "@composer fmt -- --test"
+            "@composer cs-fix -- --test"
         ],
         "phpstan": [
-            "./vendor/bin/phpstan analyse --memory-limit=1G"
+            "vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit 1G"
         ],
         "post-autoload-dump": [
             "@clear",
