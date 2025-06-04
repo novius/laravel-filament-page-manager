@@ -20,7 +20,9 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
@@ -219,6 +221,13 @@ class PageResource extends Resource
             ->filters([
                 LocaleFilter::make('locale'),
                 PublicationStatusFilter::make('publication_status'),
+                TernaryFilter::make('is_home')
+                    ->label(trans('laravel-filament-page-manager::page.is_home'))
+                    ->queries(
+                        true: fn (Builder|Page $query) => $query->homepage(),
+                        false: fn (Builder|Page $query) => $query->where('slug', '!=', '/'),
+                        blank: fn (Builder|Page $query) => $query,
+                    ),
             ])
             ->actions([
                 EditAction::make(),
