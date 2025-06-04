@@ -1,37 +1,18 @@
-# Laravel Nova Page Manager
+# Laravel Filament Page Manager
 
 This package allows you to manage pages with custom templates.
 
 ## Requirements
 
 * PHP >= 8.2
-* Laravel >= 10.0
-* Laravel Nova >= 4.0
-
-> **NOTE**: These instructions are for Laravel >= 10.0 and PHP >= 8.2 If you are using prior version, please
-> see the [previous version's docs](https://github.com/novius/laravel-nova-page-manager/tree/4.x).
-
+* Laravel >= 11.0
+* Laravel Filament >= 3.3
 
 ## Installation
 
 ```sh
-composer require novius/laravel-nova-page-manager
+composer require novius/laravel-filament-page-manager
 ```
-
-> **NOTE**: These instructions are for Laravel Nova >= 4.0. If you are using prior version, please
-> see the [previous version's docs](https://github.com/novius/laravel-nova-page-manager/tree/1.x).
-
-**Validator translation**
-
-Please add this line to `resource/lang/{locale}/validation.php` (on first level) :
-
-```php
-// EN version : resource/lang/en/validation.php
-'unique_page' => 'The field :attribute must be unique in this language.',
-
-// FR version : resource/lang/fr/validation.php
-'unique_page' => 'Le champ :attribute doit être unique dans cette langue.',
-``` 
 
 **Front Stuff** 
 
@@ -41,7 +22,7 @@ If you want a pre-generated front controller and route, you can run following co
 php artisan page-manager:publish-front
 ``` 
 
-This command appends a route to `routes/web.php` and creates a new `App\Http\Controllers\FrontPageController`.
+This command appends a route to `routes/web.php` and creates a new `App\Http\Controllers\PageController`.
 
 In Page templates use the documentation of [laravel-meta](https://github.com/novius/laravel-meta?tab=readme-ov-file#front) to implement meta tags
 
@@ -50,59 +31,33 @@ In Page templates use the documentation of [laravel-meta](https://github.com/nov
 Some options that you can override are available.
 
 ```sh
-php artisan vendor:publish --provider="Novius\LaravelNovaPageManager\LaravelNovaPageManagerServiceProvider" --tag="config"
-```
-
-**Locales**
-
-You can add / remove any locale from config files.
-
-Example if you want 2 languages (FR and EN): 
-
-```php
-// ...
-
-'locales' => [
-    'en' => 'English',
-    'fr' => 'French',
-],
-
-// ...
+php artisan vendor:publish --provider="Novius\LaravelFilamentPageManager\LaravelFilamentPageManagerServiceProvider" --tag="config"
 ```
 
 ## Templates
 
-To add a template, just add your custom class to `templates` array in configuration file.
+To add a template, just add your custom class to `templates` array in configuration file or place it under `App\Templates\Pages` namespace
 
-Your class must extend `Novius\LaravelNovaPageManager\Templates\AbstractPageTemplate`.
+Your class must implement `Novius\LaravelFilamentPageManager\Contracts\PageTemplate`.
 
 Example : 
 
-In `config/laravel-nova-page-manager.php`
-```php
-// ...
-
-'templates' => [
-    \App\Nova\Templates\StandardTemplate::class,
-],
-```
-
-In `app/Nova/Templates/StandardTemplate.php`
+In `app/Templates/Pages/StandardTemplate.php`
 
 ```php
 <?php
 
-namespace App\Nova\Templates;
+namespace App\Templates;
 
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\Trix;
-use Novius\LaravelNovaPageManager\Templates\AbstractPageTemplate;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
+use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 
-class StandardTemplate extends AbstractPageTemplate
+class StandardTemplate extends PageTemplate
 {
     public function templateName(): string
     {
-        return trans('laravel-nova-page-manager::template.standard_template');
+        return trans('laravel-filament-page-manager::template.standard_template');
     }
 
     public function templateUniqueKey(): string
@@ -113,8 +68,10 @@ class StandardTemplate extends AbstractPageTemplate
     public function fields(): array
     {
         return [
-            Trix::make('Content', 'content'),
-            Date::make('Date', 'date'),
+            RichEditor::make('content')
+                ->label('Content'),
+            DatePicker::make('date')
+                ->label('Date'),
         ];
     }
     
@@ -127,10 +84,10 @@ class StandardTemplate extends AbstractPageTemplate
 }
 ``` 
 
-Pour utiliser les champs spécifique du template :
+To use the specific template fields :
 
 ```php
-$page = \Novius\LaravelNovaPageManager\Models\Page::where('template', 'standard')->first();
+$page = \Novius\LaravelFilamentPageManager\Models\Page::where('template', 'standard')->first();
 
 $content = $page->extras['content'];
 

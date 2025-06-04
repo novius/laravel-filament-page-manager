@@ -7,9 +7,6 @@ parameters:
         - src
         - config
 
-    bootstrapFiles:
-        - phpstan/bootstrap.php
-
     # Level 10 is the highest level
     level: 5
 

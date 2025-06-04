@@ -1,4 +1,6 @@
+Route::get('/', [\App\Http\Controllers\PageController::class, 'home'])
+    ->name('homepage');
 
-Route::get('{page}', \App\Http\Controllers\FrontPageController::class)
-    ->where(['page' => '^((?!admin)(?!nova-api)(?!nova-vendor).)*$'])
+Route::get('{page}', [\App\Http\Controllers\PageController::class, 'show'])
+    ->where(['page' => '^((?!admin).)*$'])
     ->name('{{frontPageRouteName}}');

@@ -2,9 +2,9 @@ name: Novius CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   lint-php:
@@ -14,22 +14,10 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
 
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
-
-      - name: Add Nova key
-        run: composer config http-basic.nova.laravel.com $LARAVEL_NOVA_USERNAME $LARAVEL_NOVA_LICENSE_KEY
-        env:
-          LARAVEL_NOVA_USERNAME: ${{ secrets.LARAVEL_NOVA_USERNAME }}
-          LARAVEL_NOVA_LICENSE_KEY: ${{ secrets.LARAVEL_NOVA_LICENSE_KEY }}
 
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -38,26 +26,22 @@ jobs:
         run: composer run-script lint
 
   phpstan:
-
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        operating-system: ['ubuntu-latest']
         php-versions: ['8.2', '8.3', '8.4']
         laravel: [ 11.*, 12.* ]
-        nova: [ 4.*, 5.* ]
-        dependency-version: [ prefer-stable ]
         include:
           - laravel: 12.*
             carbon: 3.*
+            testbench: 10.*
           - laravel: 11.*
             carbon: 2.*
-        exclude:
-          - laravel: 12.*
-            nova: 4.*
+            testbench: 9.*
 
-    name: phpstan - P${{ matrix.php-versions }} - L${{ matrix.laravel }} - N${{ matrix.nova }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+    name: phpstan - P${{ matrix.php-versions }} - L${{ matrix.laravel }}
 
     steps:
       - uses: shivammathur/setup-php@v2
@@ -67,22 +51,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Cache composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
-
-      - name: Add Nova key
-        run: composer config http-basic.nova.laravel.com $LARAVEL_NOVA_USERNAME $LARAVEL_NOVA_LICENSE_KEY
-        env:
-          LARAVEL_NOVA_USERNAME: ${{ secrets.LARAVEL_NOVA_USERNAME }}
-          LARAVEL_NOVA_LICENSE_KEY: ${{ secrets.LARAVEL_NOVA_LICENSE_KEY }}
-
       - name: Install Dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "nesbot/carbon:${{ matrix.carbon }}" "laravel/nova:${{ matrix.nova }}" --no-interaction --no-update
-          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+          composer require "laravel/framework:${{ matrix.laravel }}" "nesbot/carbon:${{ matrix.carbon }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: PHPStan Static Analysis
+      - name: PhPStan
         run: composer run-script phpstan

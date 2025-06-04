@@ -1,9 +1,9 @@
 {
-    "name": "novius/laravel-nova-page-manager",
-    "description": "A Laravel Nova package to manage pages.",
+    "name": "novius/laravel-filament-page-manager",
+    "description": "A Laravel Filament package to manage pages.",
     "keywords": [
         "laravel",
-        "nova",
+        "filament",
         "page-manager"
     ],
     "license": "AGPL-3.0-or-later",
@@ -15,30 +15,32 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
-        "laravel/framework": "^10.0 | ^11.0 | ^12.0",
-        "laravel/nova": "^4.0 | ^5.0",
-        "novius/laravel-linkable": "^1.0",
+        "php": ">=8.3",
+        "filament/filament": "^3.3",
+        "laravel/framework": "^12.0",
         "novius/laravel-json-casted": "^1.0.0",
-        "novius/laravel-meta": "^1.0",
-        "novius/laravel-nova-field-preview": "^2.0",
-        "novius/laravel-nova-publishable": "^3.0",
-        "novius/laravel-nova-translatable": "^1.0",
+        "novius/laravel-linkable": "^1.0",
+        "novius/laravel-meta": "dev-main",
+        "novius/laravel-filament-action-preview": "dev-main",
+        "novius/laravel-filament-publishable": "dev-main",
+        "novius/laravel-filament-translatable": "dev-main",
         "spatie/laravel-sluggable": "^3.4"
     },
     "require-dev": {
         "larastan/larastan": "^2.0 | ^3.0",
-        "laravel/pint": "^1.7"
+        "laravel/pint": "^1.7",
+        "orchestra/testbench": "^10.3",
+        "roave/security-advisories": "dev-latest"
     },
     "autoload": {
         "psr-4": {
-            "Novius\\LaravelNovaPageManager\\": "src/"
+            "Novius\\LaravelFilamentPageManager\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Novius\\LaravelNovaPageManager\\LaravelNovaPageManagerServiceProvider"
+                "Novius\\LaravelFilamentPageManager\\LaravelFilamentPageManagerServiceProvider"
             ]
         }
     },
@@ -51,17 +53,44 @@
         ],
         "phpstan": [
             "./vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
         ]
     },
     "repositories": [
         {
-            "type": "composer",
-            "url": "https://nova.laravel.com"
+            "type": "vcs",
+            "url": "git@github.com:novius/laravel-filament-action-preview.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:novius/laravel-filament-publishable.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:novius/laravel-filament-translatable.git"
         }
     ],
     "config": {
         "sort-packages": true
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    }
 }

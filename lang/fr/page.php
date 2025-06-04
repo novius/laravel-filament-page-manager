@@ -1,10 +1,14 @@
 <?php
 
 return [
+    'modelLabel' => 'Page',
+    'modelsLabel' => 'Pages',
+
     'linkableGroup' => 'Pages',
 
     'title' => 'Titre',
     'slug' => 'Slug',
+    'is_home' => 'Home page',
     'template' => 'Gabarit',
     'locale' => 'Langue',
     'parent' => 'Page parente',
@@ -21,6 +25,7 @@ return [
     'og_description' => 'Description balise OG',
     'og_image' => 'Image balise OG',
 
+    'panel_publication' => 'Publication',
     'panel_main' => 'Informations principales',
     'panel_seo' => 'SEO',
     'panel_og' => 'Balises OG',

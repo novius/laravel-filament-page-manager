@@ -1,6 +1,6 @@
 <?php
 
-namespace Novius\LaravelNovaPageManager\Models;
+namespace Novius\LaravelFilamentPageManager\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Novius\LaravelFilamentPageManager\Facades\PageManager;
 use Novius\LaravelJsonCasted\Casts\JsonWithCasts;
 use Novius\LaravelLinkable\Configs\LinkableConfig;
 use Novius\LaravelLinkable\Traits\Linkable;
 use Novius\LaravelMeta\Enums\IndexFollow;
 use Novius\LaravelMeta\MetaModelConfig;
 use Novius\LaravelMeta\Traits\HasMeta;
-use Novius\LaravelNovaPageManager\Helpers\TemplatesHelper;
 use Novius\LaravelPublishable\Enums\PublicationStatus;
 use Novius\LaravelPublishable\Traits\Publishable;
 use Novius\LaravelTranslatable\Traits\Translatable;
@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $extras
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property-read bool $is_home
  * @property-read string|null $seo_robots
  * @property-read string|null $seo_title
  * @property-read string|null $seo_description
@@ -52,15 +53,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read string|null $og_image
  * @property-read string|null $og_image_url
  *
- * @method static Builder|Page newModelQuery()
- * @method static Builder|Page newQuery()
- * @method static Builder|Page notPublished()
- * @method static Builder|Page onlyDrafted()
- * @method static Builder|Page onlyExpired()
- * @method static Builder|Page onlyWillBePublished()
- * @method static Builder|Page published()
- * @method static Builder|Page query()
- * @method static Builder|Page withLocale(?string $locale)
+ * @method static Builder<static>|Page homepage()
+ * @method static Builder<static>|Page newModelQuery()
+ * @method static Builder<static>|Page newQuery()
+ * @method static Builder<static>|Page notPublished()
+ * @method static Builder<static>|Page onlyDrafted()
+ * @method static Builder<static>|Page onlyExpired()
+ * @method static Builder<static>|Page onlyWillBePublished()
+ * @method static Builder<static>|Page published()
+ * @method static Builder<static>|Page query()
+ * @method static Builder<static>|Page withLocale(?string $locale)
  *
  * @mixin Model
  */
@@ -94,9 +96,8 @@ class Page extends Model
                 $page->preview_token = Str::random();
             }
 
-            $locales = config('laravel-nova-page-manager.locales', []);
-            if (empty($page->locale) && count($locales) === 1) {
-                $page->locale = array_key_first($locales);
+            if (empty($page->locale) && PageManager::locales()->count() === 1) {
+                $page->locale = PageManager::locales()->first()->code;
             }
         });
     }
@@ -130,8 +131,8 @@ class Page extends Model
             $this->metaConfig = MetaModelConfig::make()
                 ->setDefaultSeoRobots(IndexFollow::index_follow)
                 ->setFallbackTitle('title')
-                ->setOgImageDisk(config('laravel-nova-page-manager.og_image_disk', 'public'))
-                ->setOgImagePath(config('laravel-nova-page-manager.og_image_path', '/'));
+                ->setOgImageDisk(config('laravel-filament-page-manager.og_image_disk', 'public'))
+                ->setOgImagePath(config('laravel-filament-page-manager.og_image_path', '/'));
         }
 
         return $this->metaConfig;
@@ -143,10 +144,10 @@ class Page extends Model
     {
         if (! isset($this->_linkableConfig)) {
             $this->_linkableConfig = new LinkableConfig(
-                routeName: config('laravel-nova-page-manager.front_route_name'),
-                routeParameterName: config('laravel-nova-page-manager.front_route_parameter'),
+                routeName: config('laravel-filament-page-manager.front_route_name'),
+                routeParameterName: config('laravel-filament-page-manager.front_route_parameter'),
                 optionLabel: 'title',
-                optionGroup: trans('laravel-nova-page-manager::page.linkableGroup'),
+                optionGroup: trans('laravel-filament-page-manager::page.linkableGroup'),
                 resolveQuery: function (Builder|Page $query) {
                     $query->where('locale', app()->currentLocale());
                 },
@@ -162,9 +163,23 @@ class Page extends Model
 
     public function getExtrasCasts(): array
     {
-        $template = $this->template ? TemplatesHelper::getTemplate($this->template) : null;
+        $template = $this->template ? PageManager::template($this->template) : null;
 
         return $template?->casts() ?? [];
+    }
+
+    public function scopeHomepage(Builder|Page $query): void
+    {
+        $query->where('slug', '/');
+    }
+
+    protected function isHome(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return $this->slug === '/';
+            }
+        );
     }
 
     protected function seoCanonicalUrl(): Attribute

@@ -1,6 +1,8 @@
 <?php
 
-namespace Novius\LaravelNovaPageManager\Contracts;
+namespace Novius\LaravelFilamentPageManager\Contracts;
+
+use Filament\Forms\Components\Component;
 
 interface PageTemplate
 {
@@ -8,6 +10,7 @@ interface PageTemplate
 
     public function templateName(): string;
 
+    /** @return array<Component> */
     public function fields(): array;
 
     public function casts(): array;

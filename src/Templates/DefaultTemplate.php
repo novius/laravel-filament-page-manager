@@ -1,15 +1,16 @@
 <?php
 
-namespace Novius\LaravelNovaPageManager\Templates;
+namespace Novius\LaravelFilamentPageManager\Templates;
 
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Trix;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TextInput;
+use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 
-class DefaultTemplate extends AbstractPageTemplate
+class DefaultTemplate implements PageTemplate
 {
     public function templateName(): string
     {
-        return trans('laravel-nova-page-manager::template.default_template');
+        return trans('laravel-filament-page-manager::template.default_template');
     }
 
     public function templateUniqueKey(): string
@@ -20,14 +21,19 @@ class DefaultTemplate extends AbstractPageTemplate
     public function fields(): array
     {
         return [
-            Text::make(trans('laravel-nova-page-manager::template.field_title'), 'title')
-                ->rules('required'),
+            TextInput::make('title')
+                ->label(trans('laravel-filament-page-manager::template.field_title')),
 
-            Text::make(trans('laravel-nova-page-manager::template.field_subtitle'), 'subtitle')
-                ->rules('required'),
+            TextInput::make('subtitle')
+                ->label(trans('laravel-filament-page-manager::template.field_subtitle')),
 
-            Trix::make(trans('laravel-nova-page-manager::template.field_content'), 'content')
-                ->rules('required'),
+            RichEditor::make('content')
+                ->label(trans('laravel-filament-page-manager::template.field_content')),
         ];
+    }
+
+    public function casts(): array
+    {
+        return [];
     }
 }

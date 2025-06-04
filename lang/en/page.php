@@ -1,10 +1,14 @@
 <?php
 
 return [
+    'modelLabel' => 'Page',
+    'modelsLabel' => 'Pages',
+
     'linkableGroup' => 'Pages',
 
     'title' => 'Title',
     'slug' => 'Slug',
+    'is_home' => 'Page d\'accueil',
     'template' => 'Template',
     'locale' => 'Language',
     'parent' => 'Parent page',
@@ -20,6 +24,7 @@ return [
     'og_description' => 'OG description',
     'og_image' => 'OG image',
 
+    'panel_publication' => 'Publication',
     'panel_main' => 'Main fields',
     'panel_seo' => 'SEO',
     'panel_og' => 'Open Graph meta tags',

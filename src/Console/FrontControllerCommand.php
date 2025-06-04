@@ -1,6 +1,6 @@
 <?php
 
-namespace Novius\LaravelNovaPageManager\Console;
+namespace Novius\LaravelFilamentPageManager\Console;
 
 use Illuminate\Console\GeneratorCommand;
 
@@ -42,7 +42,7 @@ class FrontControllerCommand extends GeneratorCommand
             $routeToAppend = file_get_contents(__DIR__.'/stubs/routes.front.stub');
             $routeToAppend = str_replace(
                 '{{frontPageRouteName}}',
-                config('laravel-nova-page-manager.front_route_name'),
+                config('laravel-filament-page-manager.front_route_name'),
                 $routeToAppend
             );
 
@@ -59,7 +59,7 @@ class FrontControllerCommand extends GeneratorCommand
      */
     protected function getNameInput(): string
     {
-        return 'FrontPageController';
+        return 'PageController';
     }
 
     /**
