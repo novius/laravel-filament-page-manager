@@ -202,14 +202,18 @@ class PageResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                LocaleColumn::make('locale'),
+                LocaleColumn::make('locale')
+                    ->sortable(),
                 TranslationsColumn::make('translations'),
 
                 TextColumn::make('template')
                     ->label(trans('laravel-filament-page-manager::page.template'))
+                    ->sortable()
                     ->badge(),
 
-                PublicationColumn::make('publication_status'),
+                PublicationColumn::make('publication_status')
+                    ->sortable(),
+
                 static::getTableSEOBadgeColumn(),
             ])
             ->filters([
