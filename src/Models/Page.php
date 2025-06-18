@@ -74,7 +74,7 @@ class Page extends Model
     use Publishable;
     use Translatable;
 
-    protected $table = 'page_manager_pages';
+    protected $table = 'pages';
 
     protected $guarded = ['id'];
 
