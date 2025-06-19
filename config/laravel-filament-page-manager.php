@@ -1,9 +1,15 @@
 <?php
 
+use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource;
+use Novius\LaravelFilamentPageManager\Models\Page;
+use Novius\LaravelFilamentPageManager\SpecialPages\Homepage;
+use Novius\LaravelFilamentPageManager\SpecialPages\Page404;
 use Novius\LaravelFilamentPageManager\Templates\DefaultTemplate;
 
 return [
-    'pageResource' => \Novius\LaravelFilamentPageManager\Filament\Resources\PageResource::class,
+    'model' => Page::class,
+
+    'filamentResource' => PageResource::class,
 
     // If you want to restrict the list of possible locals. By default, uses all the locals installed
     'locales' => [
@@ -14,15 +20,19 @@ return [
 
     'og_image_path' => 'pages/og',
 
-    'front_route_name' => 'page-manager.page',
+    // If you want to exclude some pattern for the route page parameter
+    'route_parameter_where' => '^((?!admin).)+$',
 
-    'front_route_parameter' => 'page',
-
-    'guard_preview' => null,
-
-    'autoload_templates_in' => app_path('Templates/Pages'),
+    'autoload_templates_in' => app_path('Pages/Templates'),
 
     'templates' => [
-        //        DefaultTemplate::class,
+        DefaultTemplate::class,
+    ],
+
+    'autoload_special_in' => app_path('Pages/Special'),
+
+    'special' => [
+        Homepage::class,
+        Page404::class,
     ],
 ];

@@ -2,15 +2,23 @@
 
 namespace Novius\LaravelFilamentPageManager\Models;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Novius\LaravelFilamentPageManager\Casts\AsSpecialPage;
+use Novius\LaravelFilamentPageManager\Casts\AsTemplate;
+use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
+use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
+use Novius\LaravelFilamentPageManager\SpecialPages\Homepage;
 use Novius\LaravelJsonCasted\Casts\JsonWithCasts;
 use Novius\LaravelLinkable\Configs\LinkableConfig;
 use Novius\LaravelLinkable\Traits\Linkable;
@@ -27,21 +35,23 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * Class Page
  *
+ * @property int $id
  * @property string $title
  * @property string $slug
  * @property string $locale
- * @property string $template
+ * @property PageTemplate $template
  * @property int $parent_id
  * @property int $locale_parent_id
+ * @property ?Special $special
  * @property PublicationStatus $publication_status
  * @property Carbon|null $published_first_at
  * @property Carbon|null $published_at
  * @property Carbon|null $expired_at
  * @property string $preview_token
+ * @property array<array-key, mixed>|null $meta
  * @property array $extras
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property-read bool $is_home
  * @property-read string|null $seo_robots
  * @property-read string|null $seo_title
  * @property-read string|null $seo_description
@@ -52,10 +62,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read string|null $og_description
  * @property-read string|null $og_image
  * @property-read string|null $og_image_url
+ * @property-read Collection<int, Page> $translations
+ * @property-read Collection<int, Page> $translationsWithDeleted
+ * @property-read static|null $parent
+ * @property-read Collection<int, static> $children
  *
  * @method static Builder<static>|Page homepage()
+ * @method static Builder<static>|Page indexableByRobots()
  * @method static Builder<static>|Page newModelQuery()
  * @method static Builder<static>|Page newQuery()
+ * @method static Builder<static>|Page notIndexableByRobots()
  * @method static Builder<static>|Page notPublished()
  * @method static Builder<static>|Page onlyDrafted()
  * @method static Builder<static>|Page onlyExpired()
@@ -64,7 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|Page query()
  * @method static Builder<static>|Page withLocale(?string $locale)
  *
- * @mixin Model
+ * @mixin Eloquent
  */
 class Page extends Model
 {
@@ -79,6 +95,8 @@ class Page extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
+        'template' => AsTemplate::class,
+        'special' => AsSpecialPage::class,
         'extras' => JsonWithCasts::class.':getExtrasCasts',
     ];
 
@@ -131,8 +149,10 @@ class Page extends Model
             $this->metaConfig = MetaModelConfig::make()
                 ->setDefaultSeoRobots(IndexFollow::index_follow)
                 ->setFallbackTitle('title')
-                ->setOgImageDisk(config('laravel-filament-page-manager.og_image_disk', 'public'))
-                ->setOgImagePath(config('laravel-filament-page-manager.og_image_path', '/'));
+                ->setOgImageDisk(config('laravel-filament-page-manager.og_image_disk',
+                    'public'))
+                ->setOgImagePath(config('laravel-filament-page-manager.og_image_path',
+                    '/'));
         }
 
         return $this->metaConfig;
@@ -144,10 +164,10 @@ class Page extends Model
     {
         if (! isset($this->_linkableConfig)) {
             $this->_linkableConfig = new LinkableConfig(
-                routeName: config('laravel-filament-page-manager.front_route_name'),
-                routeParameterName: config('laravel-filament-page-manager.front_route_parameter'),
+                routeName: 'page-manager.page',
+                routeParameterName: 'page',
                 optionLabel: 'title',
-                optionGroup: trans('laravel-filament-page-manager::page.linkableGroup'),
+                optionGroup: trans('laravel-filament-page-manager::messages.linkableGroup'),
                 resolveQuery: function (Builder|Page $query) {
                     $query->where('locale', app()->currentLocale());
                 },
@@ -163,30 +183,44 @@ class Page extends Model
 
     public function getExtrasCasts(): array
     {
-        $template = $this->template ? PageManager::template($this->template) : null;
-
-        return $template?->casts() ?? [];
+        /** @phpstan-ignore nullsafe.neverNull,nullCoalesce.expr */
+        return $this->template?->casts() ?? [];
     }
 
     public function scopeHomepage(Builder|Page $query): void
     {
-        $query->where('slug', '/');
+        $query->where('special', (new HomePage)->key());
     }
 
-    protected function isHome(): Attribute
+    public static function getHomePage(?string $locale = null, ?Request $request = null): self
     {
-        return Attribute::make(
-            get: function () {
-                return $this->slug === '/';
-            }
-        );
+        return static::homepage()
+            ->withLocale($locale ?? app()->currentLocale())
+            ->published()
+            ->firstOrFail();
+    }
+
+    public static function getSpecialPage(string|Special $special, ?string $locale = null): self
+    {
+        if ($special instanceof Special) {
+            $special = $special->key();
+        } elseif (in_array(Special::class, class_implements($special), true)) {
+            $special = (new $special)->key();
+        }
+
+        return static::query()
+            ->where('special', $special)
+            ->withLocale($locale ?? app()->currentLocale())
+            ->published()
+            ->firstOrFail();
     }
 
     protected function seoCanonicalUrl(): Attribute
     {
         return Attribute::make(
             get: function () {
-                return Arr::get($this->{$this->getMetaColumn()}, 'seo_canonical_url', $this->url());
+                return Arr::get($this->{$this->getMetaColumn()}, 'seo_canonical_url',
+                    $this->url());
             }
         );
     }

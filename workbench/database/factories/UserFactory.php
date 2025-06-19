@@ -8,9 +8,9 @@ use Illuminate\Support\Str;
 use Workbench\App\Models\User;
 
 /**
- * @template TModel of \Workbench\App\Models\User
+ * @template TModel of User
  *
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<TModel>
+ * @extends Factory<TModel>
  */
 class UserFactory extends Factory
 {

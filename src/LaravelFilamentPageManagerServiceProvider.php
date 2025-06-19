@@ -2,8 +2,8 @@
 
 namespace Novius\LaravelFilamentPageManager;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Novius\LaravelFilamentPageManager\Console\FrontControllerCommand;
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelFilamentPageManager\Services\PageManagerService;
 use Novius\LaravelLinkable\Facades\Linkable;
@@ -15,8 +15,6 @@ class LaravelFilamentPageManagerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-filament-page-manager');
-
         $this->app->booted(function () {
             Linkable::addModels([Page::class]);
         });
@@ -31,11 +29,9 @@ class LaravelFilamentPageManagerServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom($packageDir.'/lang', 'laravel-filament-page-manager');
         $this->publishes([__DIR__.'/../lang' => lang_path('vendor/laravel-filament-page-manager')], 'lang');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                FrontControllerCommand::class,
-            ]);
-        }
+        $this->loadViewsFrom($packageDir.'/resources/views', 'laravel-filament-page-manager');
+
+        Route::model('page', config('laravel-filament-page-manager.model', Page::class));
     }
 
     /**

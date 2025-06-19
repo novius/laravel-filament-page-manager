@@ -3,17 +3,18 @@
 namespace Novius\LaravelFilamentPageManager\Templates;
 
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\TextInput;
+use Illuminate\Http\Request;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
+use Novius\LaravelFilamentPageManager\Models\Page;
 
 class DefaultTemplate implements PageTemplate
 {
-    public function templateName(): string
+    public function name(): string
     {
-        return trans('laravel-filament-page-manager::template.default_template');
+        return trans('laravel-filament-page-manager::messages.default_template');
     }
 
-    public function templateUniqueKey(): string
+    public function key(): string
     {
         return 'default';
     }
@@ -21,19 +22,23 @@ class DefaultTemplate implements PageTemplate
     public function fields(): array
     {
         return [
-            TextInput::make('title')
-                ->label(trans('laravel-filament-page-manager::template.field_title')),
-
-            TextInput::make('subtitle')
-                ->label(trans('laravel-filament-page-manager::template.field_subtitle')),
-
             RichEditor::make('content')
-                ->label(trans('laravel-filament-page-manager::template.field_content')),
+                ->label(trans('laravel-filament-page-manager::messages.content')),
         ];
     }
 
     public function casts(): array
     {
         return [];
+    }
+
+    public function view(): string
+    {
+        return 'laravel-filament-page-manager::default';
+    }
+
+    public function viewParameters(Request $request, Page $page): array
+    {
+        return ['page' => $page];
     }
 }

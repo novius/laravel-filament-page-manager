@@ -8,7 +8,6 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -20,13 +19,13 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
+use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
 use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
 use Novius\LaravelFilamentPageManager\Models\Page;
@@ -59,12 +58,12 @@ class PageResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return trans('laravel-filament-page-manager::page.modelLabel');
+        return trans('laravel-filament-page-manager::messages.modelLabel');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return trans('laravel-filament-page-manager::page.modelsLabel');
+        return trans('laravel-filament-page-manager::messages.modelsLabel');
     }
 
     public static function form(Form $form): Form
@@ -72,13 +71,13 @@ class PageResource extends Resource
         /** @var Page|null $record */
         $record = $form->getRecord();
         $tabs = [
-            Tabs\Tab::make(trans('laravel-filament-page-manager::page.panel_main'))
+            Tabs\Tab::make(trans('laravel-filament-page-manager::messages.panel_main'))
                 ->schema(static::tabMain()),
-            Tabs\Tab::make(trans('laravel-filament-page-manager::page.panel_seo'))
+            Tabs\Tab::make(trans('laravel-filament-page-manager::messages.panel_seo'))
                 ->schema(static::tabSeo()),
         ];
         if ($record) {
-            $tabs[] = static::normalizeTemplateFields(PageManager::template($record->template));
+            $tabs[] = static::normalizeTemplateFields($record->template);
         }
 
         return $form
@@ -95,19 +94,29 @@ class PageResource extends Resource
     {
         return [
             TextInput::make('title')
-                ->label(trans('laravel-filament-page-manager::page.title'))
+                ->label(trans('laravel-filament-page-manager::messages.title'))
                 ->required()
                 ->live(onBlur: true)
                 ->columnSpanFull()
                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                    if (! $get('is_home')) {
-                        $set('slug', Str::slug($state));
+                    $value = $get('special');
+                    if (! empty($value) && PageManager::special($value)?->pageSlug() !== null) {
+                        return;
                     }
+
+                    $set('slug', Str::slug($state));
                 }),
 
             TextInput::make('slug')
-                ->label(trans('laravel-filament-page-manager::page.slug'))
-                ->readOnly(fn (Get $get) => $get('is_home'))
+                ->label(trans('laravel-filament-page-manager::messages.slug'))
+                ->readOnly(function (Get $get) {
+                    $value = $get('special');
+                    if (! empty($value)) {
+                        return PageManager::special($value)?->pageSlug() !== null;
+                    }
+
+                    return false;
+                })
                 ->required()
                 ->string()
                 ->regex('/^(\/|[a-zA-Z0-9-_]+)$/')
@@ -120,13 +129,25 @@ class PageResource extends Resource
                     }
                 ),
 
-            Toggle::make('is_home')
-                ->label(trans('laravel-filament-page-manager::page.is_home'))
-                ->onIcon('heroicon-o-home')
-                ->inline(false)
-                ->formatStateUsing(fn (Get $get) => $get('slug') === '/')
-                ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                    return $set('slug', $state ? '/' : Str::slug($get('title')));
+            Select::make('special')
+                ->afterStateHydrated(function (Select $component, ?Special $state) {
+                    $component->state($state?->key());
+                })
+                ->label(trans('laravel-filament-page-manager::messages.special'))
+                ->options(fn () => PageManager::specialPages()->mapWithKeys(fn (Special $special) => [$special->key() => $special->name()])->toArray())
+                ->allowHtml()
+                ->afterStateUpdated(function ($state, Set $set) {
+                    if (! empty($state)) {
+                        $special = PageManager::special($state);
+                        $slug = $special?->pageSlug();
+                        if ($slug !== null) {
+                            $set('slug', $slug);
+                        }
+                        $template = $special?->template();
+                        if ($template !== null) {
+                            $set('template', $template->key());
+                        }
+                    }
                 })
                 ->reactive(),
 
@@ -134,21 +155,30 @@ class PageResource extends Resource
                 ->required(),
 
             Select::make('template')
-                ->label(trans('laravel-filament-page-manager::page.template'))
-                ->options(function () {
-                    return PageManager::templates()
-                        ->mapWithKeys(fn (PageTemplate $template
-                        ) => [$template->templateUniqueKey() => $template->templateName()])
-                        ->toArray();
+                ->afterStateHydrated(function (Select $component, ?PageTemplate $state) {
+                    $component->state($state?->key());
+                })
+                ->label(trans('laravel-filament-page-manager::messages.template'))
+                ->options(function (Get $get) {
+                    $value = $get('special');
+                    if (! empty($value)) {
+                        $template = PageManager::special($value)?->template();
+                        if ($template !== null) {
+                            return [$template->key() => $template->name()];
+                        }
+                    }
+
+                    return PageManager::templates()->mapWithKeys(fn (PageTemplate $template) => [$template->key() => $template->name()]);
                 })
                 ->required(),
 
             Select::make('parent')
-                ->label(trans('laravel-filament-page-manager::page.parent'))
+                ->label(trans('laravel-filament-page-manager::messages.parent'))
                 ->searchable(['title', 'slug'])
-                ->relationship(titleAttribute: 'title', ignoreRecord: true),
+                ->relationship(titleAttribute: 'title', ignoreRecord: true)
+                ->helperText(trans('laravel-filament-page-manager::messages.parent_helper_text')),
 
-            Section::make(trans('laravel-filament-page-manager::page.panel_publication'))
+            Section::make(trans('laravel-filament-page-manager::messages.panel_publication'))
                 ->columns()
                 ->schema([
                     PublicationStatus::make('publication_status'),
@@ -165,7 +195,7 @@ class PageResource extends Resource
     {
         return [
             TextInput::make('meta->seo_canonical_url')
-                ->label(trans('laravel-filament-page-manager::page.seo_canonical_url'))
+                ->label(trans('laravel-filament-page-manager::messages.seo_canonical_url'))
                 ->url()
                 ->string()
                 ->maxLength(191),
@@ -182,7 +212,7 @@ class PageResource extends Resource
             }
         }
 
-        return Tabs\Tab::make($template->templateName())
+        return Tabs\Tab::make($template->name())
             ->schema($template->fields())
             ->statePath('extras');
     }
@@ -195,39 +225,50 @@ class PageResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label(trans('laravel-filament-page-manager::page.title'))
+                    ->label(trans('laravel-filament-page-manager::messages.title'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('slug')
-                    ->label(trans('laravel-filament-page-manager::page.slug'))
+                    ->label(trans('laravel-filament-page-manager::messages.slug'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 LocaleColumn::make('locale')
                     ->sortable(),
                 TranslationsColumn::make('translations'),
 
                 TextColumn::make('template')
-                    ->label(trans('laravel-filament-page-manager::page.template'))
+                    ->formatStateUsing(fn (PageTemplate $state) => $state->name())
+                    ->label(trans('laravel-filament-page-manager::messages.template'))
                     ->sortable()
-                    ->badge(),
+                    ->badge()
+                    ->toggleable(),
+
+                TextColumn::make('special')
+                    ->formatStateUsing(fn (?Special $state) => $state?->name())
+                    ->label(trans('laravel-filament-page-manager::messages.special'))
+                    ->icon(fn (?Special $state) => $state?->icon())
+                    ->sortable()
+                    ->badge()
+                    ->toggleable(),
 
                 PublicationColumn::make('publication_status')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 static::getTableSEOBadgeColumn(),
             ])
             ->filters([
                 LocaleFilter::make('locale'),
                 PublicationStatusFilter::make('publication_status'),
-                TernaryFilter::make('is_home')
-                    ->label(trans('laravel-filament-page-manager::page.is_home'))
-                    ->queries(
-                        true: fn (Builder|Page $query) => $query->homepage(),
-                        false: fn (Builder|Page $query) => $query->where('slug', '!=', '/'),
-                        blank: fn (Builder|Page $query) => $query,
-                    ),
+                SelectFilter::make('template')
+                    ->label(trans('laravel-filament-page-manager::messages.template'))
+                    ->options(fn () => PageManager::templates()->mapWithKeys(fn (PageTemplate $template) => [$template->key() => $template->name()])),
+                SelectFilter::make('special')
+                    ->label(trans('laravel-filament-page-manager::messages.special'))
+                    ->options(fn () => PageManager::specialPages()->mapWithKeys(fn (Special $template) => [$template->key() => $template->name()])),
             ])
             ->actions([
                 EditAction::make(),

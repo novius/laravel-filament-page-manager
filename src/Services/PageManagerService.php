@@ -2,12 +2,18 @@
 
 namespace Novius\LaravelFilamentPageManager\Services;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use LaravelLang\Locales\Data\LocaleData;
 use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
+use Novius\LaravelFilamentPageManager\Contracts\Special;
+use Novius\LaravelFilamentPageManager\Models\Page;
+use Novius\LaravelMeta\Facades\CurrentModel;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
@@ -21,7 +27,8 @@ class PageManagerService
     public function templates(): Collection
     {
         $templates = [];
-        $potentialTemplates = array_merge(Arr::get($this->config, 'templates', []), $this->autoloadTemplates());
+        $potentialTemplates = array_merge(Arr::get($this->config, 'templates', []),
+            $this->autoloadIn('autoload_templates_in'));
         foreach ($potentialTemplates as $templateClass) {
             if (! class_exists($templateClass)) {
                 continue;
@@ -34,7 +41,7 @@ class PageManagerService
             }
             /** @var PageTemplate $template */
             $template = new $templateClass;
-            $templates[$template->templateUniqueKey()] = $template;
+            $templates[$template->key()] = $template;
         }
 
         return collect($templates);
@@ -51,6 +58,42 @@ class PageManagerService
     }
 
     /**
+     * @return Collection<string, Special>
+     */
+    public function specialPages(): Collection
+    {
+        $specialPages = [];
+        $potentialSpecialPages = array_merge(Arr::get($this->config, 'special', []),
+            $this->autoloadIn('autoload_special_in'));
+        foreach ($potentialSpecialPages as $specialClass) {
+            if (! class_exists($specialClass)) {
+                continue;
+            }
+
+            if (! in_array(Special::class, class_implements($specialClass), true) ||
+                (new ReflectionClass($specialClass))->isAbstract()
+            ) {
+                continue;
+            }
+            /** @var Special $special */
+            $special = new $specialClass;
+            $specialPages[$special->key()] = $special;
+        }
+
+        return collect($specialPages);
+    }
+
+    public function special(string $specialKey): ?Special
+    {
+        $special = $this->specialPages()->get($specialKey);
+        if (empty($special)) {
+            return null;
+        }
+
+        return $special;
+    }
+
+    /**
      * @return Collection<string, LocaleData>
      */
     public function locales(): Collection
@@ -58,20 +101,47 @@ class PageManagerService
         $locales = Arr::get($this->config, 'locales', []);
 
         return Locales::installed()
-            ->when(! empty($locales), fn (Collection $collection) => $collection->filter(fn (LocaleData $localeData) => in_array($localeData->code, $locales, true)));
+            ->when(! empty($locales), fn (Collection $collection) => $collection->filter(fn (
+                LocaleData $localeData
+            ) => in_array($localeData->code, $locales, true)));
     }
 
-    protected function autoloadTemplates(): array
+    public function model(): Page
+    {
+        $class = config('laravel-filament-page-manager.model', Page::class);
+
+        return new $class;
+    }
+
+    public function routes(): void
+    {
+        foreach ($this->specialPages() as $specialPage) {
+            $specialPage->routes();
+        }
+
+        Route::get('{page}', fn (Request $request, $page) => $this->render($request, $page))
+            ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
+            ->name('page-manager.page');
+    }
+
+    public function render(Request $request, Page $page): View
+    {
+        CurrentModel::setModel($page);
+
+        return view($page->template->view(), $page->template->viewParameters($request, $page));
+    }
+
+    protected function autoloadIn($config_key): array
     {
         $namespace = app()->getNamespace();
 
         $resources = [];
-        $autoload_templates_in = Arr::get($this->config, 'autoload_templates_in');
+        $autoload_templates_in = Arr::get($this->config, $config_key);
         if (empty($autoload_templates_in) || ! is_dir($autoload_templates_in)) {
             return $resources;
         }
 
-        foreach ((new Finder)->in($this->config['autoload_templates_in'])->files() as $resource) {
+        foreach ((new Finder)->in($this->config[$config_key])->files() as $resource) {
             $resource = $namespace.str_replace(
                 ['/', '.php'],
                 ['\\', ''],

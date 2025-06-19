@@ -4,19 +4,19 @@ namespace Novius\LaravelFilamentPageManager\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
-use Novius\LaravelFilamentPageManager\Contracts\Special;
+use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
 
 class AsTemplate implements CastsAttributes
 {
-    public function get(Model $model, string $key, mixed $value, array $attributes): ?Special
+    public function get(Model $model, string $key, mixed $value, array $attributes): ?PageTemplate
     {
-        return PageManager::special($value);
+        return PageManager::template($value);
     }
 
     public function set(Model $model, string $key, mixed $value, array $attributes)
     {
-        if ($value instanceof Special) {
+        if ($value instanceof PageTemplate) {
             return $value->key();
         }
 

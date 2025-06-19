@@ -15,7 +15,7 @@ class PageManagerPlugin implements Plugin
 
     public function __construct()
     {
-        $this->pageResource = config('laravel-filament-page-manager.pageResource', PageResource::class);
+        $this->pageResource = config('laravel-filament-page-manager.filamentResource', PageResource::class);
         if (! is_subclass_of($this->pageResource, Resource::class)) {
             throw new InvalidArgumentException('The page resource must be a subclass of '.Resource::class);
         }
@@ -34,7 +34,7 @@ class PageManagerPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->resources([
-            config('laravel-filament-page-manager.pageResource', PageResource::class),
+            config('laravel-filament-page-manager.filamentResource', PageResource::class),
         ]);
     }
 

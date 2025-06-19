@@ -2,16 +2,19 @@
 
 namespace Novius\LaravelFilamentPageManager\Contracts;
 
-use Filament\Forms\Components\Component;
-
 interface Special
 {
-    public function templateUniqueKey(): string;
+    public function key(): string;
 
-    public function templateName(): string;
+    public function name(): string;
 
-    /** @return array<Component> */
-    public function fields(): array;
+    public function icon(): ?string;
 
-    public function casts(): array;
+    public function pageSlug(): ?string;
+
+    public function template(): ?PageTemplate;
+
+    public function statusCode(): ?int;
+
+    public function routes(): void;
 }
