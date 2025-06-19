@@ -8,12 +8,13 @@ return [
 
     'title' => 'Titre',
     'slug' => 'Slug',
-    'is_home' => 'Home page',
     'template' => 'Gabarit',
+    'special' => 'Page spéciale',
     'locale' => 'Langue',
     'parent' => 'Page parente',
     'publication' => 'Publication',
     'preview_link' => 'Prévisualisation',
+    'content' => 'Contenu',
 
     'seo_title' => 'Meta title',
     'seo_description' => 'Meta description',
@@ -29,4 +30,10 @@ return [
     'panel_main' => 'Informations principales',
     'panel_seo' => 'SEO',
     'panel_og' => 'Balises OG',
+
+    'homepage' => 'Page d\'accueil',
+    '404' => 'Page non trouvée (404)',
+    '500' => 'Page d\'erreur (500)',
+
+    'default_template' => 'Gabarit par défaut',
 ];

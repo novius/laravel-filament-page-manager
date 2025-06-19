@@ -1,6 +1,0 @@
-Route::get('/', [\App\Http\Controllers\PageController::class, 'home'])
-    ->name('homepage');
-
-Route::get('{page}', [\App\Http\Controllers\PageController::class, 'show'])
-    ->where(['page' => '^((?!admin).)*$'])
-    ->name('{{frontPageRouteName}}');

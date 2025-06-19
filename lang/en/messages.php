@@ -8,12 +8,13 @@ return [
 
     'title' => 'Title',
     'slug' => 'Slug',
-    'is_home' => 'Page d\'accueil',
     'template' => 'Template',
+    'special' => 'Special page',
     'locale' => 'Language',
     'parent' => 'Parent page',
     'publication' => 'Publication',
     'preview_link' => 'Preview',
+    'content' => 'Content',
 
     'seo_title' => 'Meta title',
     'seo_description' => 'Meta description',
@@ -28,4 +29,10 @@ return [
     'panel_main' => 'Main fields',
     'panel_seo' => 'SEO',
     'panel_og' => 'Open Graph meta tags',
+
+    'homepage' => 'Home page',
+    '404' => 'Page not found (404)',
+    '500' => 'Page error (500)',
+
+    'default_template' => 'Default template',
 ];
