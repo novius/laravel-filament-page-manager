@@ -21,6 +21,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
@@ -152,7 +153,8 @@ class PageResource extends Resource
                 ->reactive(),
 
             Locale::make('locale')
-                ->required(),
+                ->required()
+                ->reactive(),
 
             Select::make('template')
                 ->afterStateHydrated(function (Select $component, ?PageTemplate $state) {
@@ -175,7 +177,11 @@ class PageResource extends Resource
             Select::make('parent')
                 ->label(trans('laravel-filament-page-manager::messages.parent'))
                 ->searchable(['title', 'slug'])
-                ->relationship(titleAttribute: 'title', ignoreRecord: true)
+                ->relationship(
+                    titleAttribute: 'title',
+                    ignoreRecord: true,
+                    modifyQueryUsing: fn (Builder|Page $query, Get $get) => $query->withLocale($get('locale'))
+                )
                 ->helperText(trans('laravel-filament-page-manager::messages.parent_helper_text')),
 
             Section::make(trans('laravel-filament-page-manager::messages.panel_publication'))
