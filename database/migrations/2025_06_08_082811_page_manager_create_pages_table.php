@@ -25,18 +25,14 @@ return new class extends Migration
             $table->unsignedBigInteger('locale_parent_id')->nullable();
 
             $table->enum('publication_status', array_column(PublicationStatus::cases(), 'value'))
-                ->default(PublicationStatus::draft->value)
-                ->after('locale_parent_id');
+                ->default(PublicationStatus::draft->value);
             $table->timestamp('published_first_at')
                 ->nullable()
-                ->index()
-                ->after('publication_status');
+                ->index();
             $table->timestamp('published_at')
-                ->nullable()
-                ->after('published_first_at');
+                ->nullable();
             $table->timestamp('expired_at')
-                ->nullable()
-                ->after('published_first_at');
+                ->nullable();
 
             $table->string('preview_token');
 
