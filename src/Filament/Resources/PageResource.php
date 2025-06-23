@@ -69,23 +69,19 @@ class PageResource extends Resource
 
     public static function form(Form $form): Form
     {
-        /** @var Page|null $record */
-        $record = $form->getRecord();
-        $tabs = [
-            Tabs\Tab::make(trans('laravel-filament-page-manager::messages.panel_main'))
-                ->schema(static::tabMain()),
-            Tabs\Tab::make(trans('laravel-filament-page-manager::messages.panel_seo'))
-                ->schema(static::tabSeo()),
-        ];
-        if ($record) {
-            $tabs[] = static::normalizeTemplateFields($record->template);
-        }
-
         return $form
             ->schema([
                 Tabs::make()
                     ->columnSpanFull()
-                    ->tabs($tabs)
+                    ->tabs([
+                        Tabs\Tab::make('main')
+                            ->label(trans('laravel-filament-page-manager::messages.panel_main'))
+                            ->schema(static::tabMain()),
+                        Tabs\Tab::make('seo')
+                            ->label(trans('laravel-filament-page-manager::messages.panel_seo'))
+                            ->schema(static::tabSeo()),
+                        static::templateTab(),
+                    ])
                     ->columns()
                     ->persistTabInQueryString(),
             ]);
@@ -135,7 +131,12 @@ class PageResource extends Resource
                     $component->state($state?->key());
                 })
                 ->label(trans('laravel-filament-page-manager::messages.special'))
-                ->options(fn () => PageManager::specialPages()->mapWithKeys(fn (Special $special) => [$special->key() => $special->name()])->toArray())
+                ->options(fn () => PageManager::specialPages()
+                    ->mapWithKeys(fn (Special $special) => [
+                        $special->key() => '<span class="flex gap-2 items-center">'.($special->icon() ? svg($special->icon(), 'h-4 w-4')->toHtml() : '').'<span>'.$special->name().'</span></span>',
+                    ])
+                    ->toArray())
+                ->native(false)
                 ->allowHtml()
                 ->afterStateUpdated(function ($state, Set $set) {
                     if (! empty($state)) {
@@ -172,7 +173,14 @@ class PageResource extends Resource
 
                     return PageManager::templates()->mapWithKeys(fn (PageTemplate $template) => [$template->key() => $template->name()]);
                 })
-                ->required(),
+                ->required()
+                ->live()
+                ->afterStateUpdated(function (Select $component) {
+                    return $component
+                        ->getContainer()->getParentComponent()->getContainer()
+                        ->getComponent('template_tab')
+                        ->fill();
+                }),
 
             Select::make('parent')
                 ->label(trans('laravel-filament-page-manager::messages.parent'))
@@ -209,18 +217,51 @@ class PageResource extends Resource
         ];
     }
 
-    protected static function normalizeTemplateFields(PageTemplate $template): Tabs\Tab
+    protected static function templateTab(): Tabs\Tab
     {
-        if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tabs\Tab) {
-            $field = collect($template->fields())->first();
-            if ($field instanceof Tabs\Tab) {
-                return $field->statePath('extras');
+        $getTemplate = static function (Get $get) {
+            $template = $get('template');
+            if ($template !== null) {
+                $template = PageManager::template($template);
+                if ($template !== null) {
+                    return $template;
+                }
             }
-        }
 
-        return Tabs\Tab::make($template->name())
-            ->schema($template->fields())
-            ->statePath('extras');
+            return null;
+        };
+
+        return Tabs\Tab::make('template_tab')
+            ->label(function (Get $get) use ($getTemplate) {
+                $template = $getTemplate($get);
+                if ($template !== null) {
+                    return $template->name();
+                }
+
+                return trans('laravel-filament-page-manager::messages.template');
+            })
+            ->schema(function (Get $get) use ($getTemplate) {
+                $template = $getTemplate($get);
+                if ($template !== null) {
+                    if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tabs\Tab) {
+                        $field = collect($template->fields())->first();
+                        if ($field instanceof Tabs\Tab) {
+                            return $field->getChildComponents();
+                        }
+                    }
+
+                    return $template->fields();
+                }
+
+                return [];
+            })
+            ->hidden(function (Get $get) use ($getTemplate) {
+                $template = $getTemplate($get);
+
+                return $template === null;
+            })
+            ->statePath('extras')
+            ->key('template_tab');
     }
 
     /**
