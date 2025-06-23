@@ -27,6 +27,7 @@ use Novius\LaravelMeta\MetaModelConfig;
 use Novius\LaravelMeta\Traits\HasMeta;
 use Novius\LaravelPublishable\Enums\PublicationStatus;
 use Novius\LaravelPublishable\Traits\Publishable;
+use Novius\LaravelTranslatable\Support\TranslatableModelConfig;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 use Spatie\Sluggable\HasSlug;
@@ -179,6 +180,11 @@ class Page extends Model
         }
 
         return $this->_linkableConfig;
+    }
+
+    public function translatableConfig(): TranslatableModelConfig
+    {
+        return new TranslatableModelConfig(config('laravel-filament-page-manager.locales'));
     }
 
     public function getExtrasCasts(): array
