@@ -176,10 +176,10 @@ class PageResource extends Resource
                 ->required()
                 ->live()
                 ->afterStateUpdated(function (Select $component) {
-                    return $component
-                        ->getContainer()->getParentComponent()->getContainer()
+                    $component
+                        ->getContainer()->getParentComponent()?->getContainer()
                         ->getComponent('template_tab')
-                        ->fill();
+                        ?->fill();
                 }),
 
             Select::make('parent')
