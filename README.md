@@ -1,4 +1,14 @@
+<div align="center">
+
 # Laravel Filament Page Manager
+
+[![Novius CI](https://github.com/novius/laravel-filament-page-manager/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/novius/laravel-filament-page-manager/actions/workflows/main.yml)
+[![Packagist Release](https://img.shields.io/packagist/v/novius/laravel-filament-page-manager.svg?maxAge=1800&style=flat-square)](https://packagist.org/packages/novius/laravel-filament-page-manager)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
+
+</div>
+
+## Introduction
 
 This package allows you to manage pages with custom templates.
 
