@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Novius\LaravelFilamentPageManager\Casts\AsSpecialPage;
 use Novius\LaravelFilamentPageManager\Casts\AsTemplate;
@@ -50,7 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $expired_at
  * @property string $preview_token
  * @property array<array-key, mixed>|null $meta
- * @property array $extras
+ * @property Fluent $extras
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read string|null $seo_robots
