@@ -24,7 +24,6 @@ This package allows you to manage pages with custom templates.
 composer require novius/laravel-filament-page-manager
 ```
 
-
 In your `AdminFilamentPanelProvider` add the `PageManagerPlugin` :
 
 ```php
