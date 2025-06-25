@@ -3,7 +3,6 @@
 namespace Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelFilamentPageManager\Filament\PageManagerPlugin;
 use Novius\LaravelFilamentPageManager\Models\Page;
@@ -31,7 +30,6 @@ class CreatePage extends CreateRecord
         $data = $parent->attributesToArray();
 
         $data['title'] = $parent->title.' '.Locales::get($locale)->native;
-        $data['slug'] = Str::slug($data['title']);
 
         return $data;
     }
