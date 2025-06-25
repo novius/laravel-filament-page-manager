@@ -139,6 +139,7 @@ class Page extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
+            ->extraScope(fn (Builder|Page $query) => $query->where('locale', $this->locale))
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
