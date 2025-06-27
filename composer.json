@@ -23,6 +23,7 @@
         "novius/laravel-meta": "dev-main",
         "novius/laravel-filament-action-preview": "dev-main",
         "novius/laravel-filament-publishable": "dev-main",
+        "novius/laravel-filament-slug": "dev-main",
         "novius/laravel-filament-translatable": "dev-main",
         "spatie/laravel-sluggable": "^3.4"
     },
@@ -79,6 +80,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:novius/laravel-filament-translatable.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:novius/laravel-filament-slug.git"
         }
     ],
     "config": {

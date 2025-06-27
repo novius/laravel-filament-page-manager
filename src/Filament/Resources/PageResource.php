@@ -22,7 +22,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
@@ -37,6 +36,7 @@ use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedFirstAt
 use Novius\LaravelFilamentPublishable\Filament\Tables\Actions\PublicationBulkAction;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Columns\PublicationColumn;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Filters\PublicationStatusFilter;
+use Novius\LaravelFilamentSlug\Filament\Forms\Components\Slug;
 use Novius\LaravelFilamentTranslatable\Filament\Forms\Components\Locale;
 use Novius\LaravelFilamentTranslatable\Filament\Tables\Columns\LocaleColumn;
 use Novius\LaravelFilamentTranslatable\Filament\Tables\Columns\TranslationsColumn;
@@ -90,22 +90,18 @@ class PageResource extends Resource
     protected static function tabMain(): array
     {
         return [
-            TextInput::make('title')
+            $title = TextInput::make('title')
                 ->label(trans('laravel-filament-page-manager::messages.title'))
                 ->required()
-                ->live(onBlur: true)
-                ->columnSpanFull()
-                ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                    $value = $get('special');
-                    if (! empty($value) && PageManager::special($value)?->pageSlug() !== null) {
-                        return;
-                    }
+                ->columnSpanFull(),
 
-                    $set('slug', Str::slug($state));
-                }),
-
-            TextInput::make('slug')
+            Slug::make('slug')
                 ->label(trans('laravel-filament-page-manager::messages.slug'))
+                ->fromField($title, function (Get $get) {
+                    $value = $get('special');
+
+                    return ! empty($value) && PageManager::special($value)?->pageSlug() !== null;
+                })
                 ->readOnly(function (Get $get) {
                     $value = $get('special');
                     if (! empty($value)) {

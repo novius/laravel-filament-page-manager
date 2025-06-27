@@ -112,6 +112,10 @@ class Page extends Model
                 throw new RuntimeException('Page : parent_id can\'t be same as primary key.');
             }
 
+            if ($page->special?->pageSlug() !== null) {
+                $page->slug = $page->special->pageSlug();
+            }
+
             if (empty($page->preview_token)) {
                 $page->preview_token = Str::random();
             }
@@ -143,6 +147,7 @@ class Page extends Model
             ->extraScope(fn (Builder|Page $query) => $query->where('locale', $this->locale))
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug')
+            ->skipGenerateWhen(fn () => $this->special?->pageSlug() !== null)
             ->doNotGenerateSlugsOnUpdate();
     }
 
