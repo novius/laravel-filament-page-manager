@@ -266,7 +266,14 @@ class PageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('updated_at', 'desc')
             ->columns([
+                TextColumn::make('id')
+                    ->label(trans('laravel-filament-page-manager::messages.id'))
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('title')
                     ->label(trans('laravel-filament-page-manager::messages.title'))
                     ->searchable()
@@ -302,6 +309,18 @@ class PageResource extends Resource
                     ->toggleable(),
 
                 static::getTableSEOBadgeColumn(),
+
+                TextColumn::make('created_at')
+                    ->label(trans('laravel-filament-page-manager::messages.created_at'))
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(trans('laravel-filament-page-manager::messages.updated_at'))
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
             ])
             ->filters([
                 LocaleFilter::make('locale'),

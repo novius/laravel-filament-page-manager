@@ -6,6 +6,7 @@ return [
 
     'linkableGroup' => 'Pages',
 
+    'id' => 'Id',
     'title' => 'Titre',
     'slug' => 'Slug',
     'template' => 'Gabarit',
@@ -17,6 +18,8 @@ return [
     'content' => 'Contenu',
     'parent_helper_text' => 'Utile si vous voulez construire un chemin de navigation.',
     'seo_canonical_url' => 'URL canonical',
+    'created_at' => 'Créé le',
+    'updated_at' => 'Modifié le',
 
     'panel_publication' => 'Publication',
     'panel_main' => 'Informations principales',

@@ -6,6 +6,7 @@ return [
 
     'linkableGroup' => 'Pages',
 
+    'id' => 'Id',
     'title' => 'Title',
     'slug' => 'Slug',
     'template' => 'Template',
@@ -17,6 +18,8 @@ return [
     'content' => 'Content',
     'parent_helper_text' => 'Useful if you want to build a breadcrumb navigation.',
     'seo_canonical_url' => 'Canonical URL',
+    'created_at' => 'Created at',
+    'updated_at' => 'Updated at',
 
     'panel_publication' => 'Publication',
     'panel_main' => 'Main fields',
