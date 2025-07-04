@@ -224,7 +224,7 @@ class Page extends Model
 
     public static function getSpecialPage(string|Special $special, ?string $locale = null): ?static
     {
-        /** @var Collection $specials */
+        /** @var Collection<int, static> $specials */
         $specials = Cache::rememberForever('page_specials', static function () {
             return static::query()
                 ->whereNotNull('special')
