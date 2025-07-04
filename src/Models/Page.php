@@ -207,7 +207,8 @@ class Page extends Model
 
     public static function getHomePage(?string $locale = null, ?Request $request = null): static
     {
-        return static::homepage()
+        return static::query()
+            ->homepage()
             ->withLocale($locale ?? app()->currentLocale())
             ->published()
             ->firstOrFail();
