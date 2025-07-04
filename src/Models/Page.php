@@ -205,7 +205,7 @@ class Page extends Model
         $query->where('special', (new HomePage)->key());
     }
 
-    public static function getHomePage(?string $locale = null, ?Request $request = null): self
+    public static function getHomePage(?string $locale = null, ?Request $request = null): static
     {
         return static::homepage()
             ->withLocale($locale ?? app()->currentLocale())
@@ -213,7 +213,7 @@ class Page extends Model
             ->firstOrFail();
     }
 
-    public static function getSpecialPage(string|Special $special, ?string $locale = null): self
+    public static function getSpecialPage(string|Special $special, ?string $locale = null): ?static
     {
         if ($special instanceof Special) {
             $special = $special->key();
@@ -225,7 +225,7 @@ class Page extends Model
             ->where('special', $special)
             ->withLocale($locale ?? app()->currentLocale())
             ->published()
-            ->firstOrFail();
+            ->first();
     }
 
     protected function seoCanonicalUrl(): Attribute
