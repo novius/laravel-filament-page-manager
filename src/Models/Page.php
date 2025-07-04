@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Novius\LaravelFilamentPageManager\Casts\AsSpecialPage;
@@ -129,6 +130,7 @@ class Page extends Model
             if ($page->special && app()->routesAreCached()) {
                 Artisan::call('route:clear');
             }
+            Cache::delete('page_specials');
         });
     }
 
@@ -222,17 +224,23 @@ class Page extends Model
 
     public static function getSpecialPage(string|Special $special, ?string $locale = null): ?static
     {
+        /** @var Collection $specials */
+        $specials = Cache::rememberForever('page_specials', static function () {
+            return static::query()
+                ->whereNotNull('special')
+                ->published()
+                ->get();
+        });
+
         if ($special instanceof Special) {
             $special = $special->key();
         } elseif (in_array(Special::class, class_implements($special), true)) {
             $special = (new $special)->key();
         }
 
-        return static::query()
-            ->where('special', $special)
-            ->withLocale($locale ?? app()->currentLocale())
-            ->published()
-            ->first();
+        return $specials->firstWhere(function (Page $page) use ($special, $locale) {
+            return $page->special?->key() === $special && $page->locale === $locale;
+        });
     }
 
     protected function seoCanonicalUrl(): Attribute
