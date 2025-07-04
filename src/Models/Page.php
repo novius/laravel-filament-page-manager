@@ -191,7 +191,7 @@ class Page extends Model
 
     public function translatableConfig(): TranslatableModelConfig
     {
-        return new TranslatableModelConfig(PageManager::locales()->toArray());
+        return new TranslatableModelConfig(PageManager::locales()->pluck('code')->toArray());
     }
 
     public function getExtrasCasts(): array
