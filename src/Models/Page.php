@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
 use Novius\LaravelFilamentPageManager\Casts\AsSpecialPage;
@@ -107,7 +108,7 @@ class Page extends Model
      */
     protected static function booted(): void
     {
-        static::saving(static function ($page) {
+        static::saving(static function (Page $page) {
             if ($page->exists && $page->id === $page->parent_id) {
                 throw new RuntimeException('Page : parent_id can\'t be same as primary key.');
             }
@@ -122,6 +123,11 @@ class Page extends Model
 
             if (empty($page->locale) && PageManager::locales()->count() === 1) {
                 $page->locale = PageManager::locales()->first()->code;
+            }
+        });
+        static::saved(static function (Page $page) {
+            if ($page->special && app()->routesAreCached()) {
+                Artisan::call('route:clear');
             }
         });
     }
