@@ -47,8 +47,6 @@ class PageResource extends Resource
 {
     use FilamentResourceHasMeta;
 
-    protected static ?string $model = Page::class;
-
     protected static ?string $slug = 'pages';
 
     protected static ?string $recordTitleAttribute = 'title';
@@ -56,6 +54,11 @@ class PageResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $recordRouteKeyName = 'id';
+
+    public static function getModel(): string
+    {
+        return config('laravel-filament-page-manager.model', Page::class);
+    }
 
     public static function getModelLabel(): string
     {
@@ -114,7 +117,7 @@ class PageResource extends Resource
                 ->string()
                 ->regex('/^(\/|[a-zA-Z0-9-_]+)$/')
                 ->unique(
-                    Page::class,
+                    config('laravel-filament-page-manager.model', Page::class),
                     'slug',
                     ignoreRecord: true,
                     modifyRuleUsing: function (Unique $rule, Get $get) {

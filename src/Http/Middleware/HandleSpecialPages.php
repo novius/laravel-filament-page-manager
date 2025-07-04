@@ -19,7 +19,10 @@ class HandleSpecialPages
         $locale = app()->getLocale();
         foreach (PageManager::specialPages() as $special) {
             if ($response->getStatusCode() === $special->statusCode()) {
-                $page = Page::where('special', $special->key())
+                /** @var class-string<Page> $pageClass */
+                $pageClass = config('laravel-filament-page-manager.model', Page::class);
+                $page = $pageClass::query()
+                    ->where('special', $special->key())
                     ->where('locale', $locale)
                     ->published()
                     ->first();
