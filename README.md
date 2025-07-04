@@ -325,11 +325,15 @@ class Product implements Special
 
     public function routes(): void
     {
-        Route::get('{page}/{product}', function (Request $request, Page $page, Product $product) {
-            return PageManager::render($request, $page);
-        })
-            ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
-            ->name('page-manager.product');
+        $page = Page::getSpecialPage($this, app()->getLocale());
+        if ($page) {
+            Route::get(
+                $page->slug.'/{product}', 
+                function (Request $request, Page $page, Product $product) {
+                    return PageManager::render($request, $page);
+                })
+                ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
+                ->name('page-manager.product');
     }
 }
 ```
