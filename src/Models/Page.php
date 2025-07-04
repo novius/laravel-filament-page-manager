@@ -191,7 +191,7 @@ class Page extends Model
 
     public function translatableConfig(): TranslatableModelConfig
     {
-        return new TranslatableModelConfig(config('laravel-filament-page-manager.locales'));
+        return new TranslatableModelConfig(PageManager::locales()->toArray());
     }
 
     public function getExtrasCasts(): array
