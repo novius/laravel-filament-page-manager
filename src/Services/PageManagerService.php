@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelFilamentPageManager\Services;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -115,8 +116,12 @@ class PageManagerService
 
     public function routes(): void
     {
-        foreach ($this->specialPages() as $specialPage) {
-            $specialPage->routes();
+        try {
+            foreach ($this->specialPages() as $specialPage) {
+                $specialPage->routes();
+            }
+        } catch (QueryException $e) {
+            report($e);
         }
 
         Route::get('{page}', fn (Request $request, $page) => $this->render($request, $page))
