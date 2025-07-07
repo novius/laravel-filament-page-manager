@@ -126,8 +126,10 @@ class PageResource extends Resource
                 ),
 
             Select::make('special')
-                ->afterStateHydrated(function (Select $component, ?Special $state) {
-                    $component->state($state?->key());
+                ->afterStateHydrated(function (Select $component, $state) {
+                    if ($state instanceof Special) {
+                        $component->state($state->key());
+                    }
                 })
                 ->label(trans('laravel-filament-page-manager::messages.special'))
                 ->options(fn () => PageManager::specialPages()
@@ -157,8 +159,10 @@ class PageResource extends Resource
                 ->reactive(),
 
             Select::make('template')
-                ->afterStateHydrated(function (Select $component, ?PageTemplate $state) {
-                    $component->state($state?->key());
+                ->afterStateHydrated(function (Select $component, $state) {
+                    if ($state instanceof PageTemplate) {
+                        $component->state($state->key());
+                    }
                 })
                 ->label(trans('laravel-filament-page-manager::messages.template'))
                 ->options(function (Get $get) {
