@@ -27,7 +27,9 @@ use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Forms\Components\SelectGuard;
 use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\GuardColumn;
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\ExpiredAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublicationStatus;
@@ -185,13 +187,16 @@ class PageResource extends Resource
                         ?->fill();
                 }),
 
+            SelectGuard::make('guard')
+                ->setGuards(config('laravel-filament-page-manager.guards', [])),
+
             Select::make('parent')
                 ->label(trans('laravel-filament-page-manager::messages.parent'))
                 ->searchable(['title', 'slug'])
                 ->relationship(
                     titleAttribute: 'title',
-                    ignoreRecord: true,
-                    modifyQueryUsing: fn (Builder|Page $query, Get $get) => $query->withLocale($get('locale'))
+                    modifyQueryUsing: fn (Builder|Page $query, Get $get) => $query->withLocale($get('locale')),
+                    ignoreRecord: true
                 )
                 ->helperText(trans('laravel-filament-page-manager::messages.parent_helper_text')),
 
@@ -313,6 +318,9 @@ class PageResource extends Resource
                     ->sortable()
                     ->badge()
                     ->toggleable(),
+
+                GuardColumn::make('guard')
+                    ->setGuards(config('laravel-filament-page-manager.guards', [])),
 
                 PublicationColumn::make('publication_status')
                     ->sortable()

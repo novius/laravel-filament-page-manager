@@ -325,15 +325,14 @@ class Product implements Special
 
     public function routes(): void
     {
-        $page = Page::getSpecialPage($this, app()->getLocale());
-        if ($page) {
-            Route::get(
-                $page->slug.'/{product}', 
-                function (Request $request, Page $page, Product $product) {
-                    return PageManager::render($request, $page);
-                })
-                ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
-                ->name('page-manager.product');
+        PageManager::route(
+            $this,
+            '{product}',
+            static function (Request $request, Product $product) {
+                return PageManager::render($request);
+            },
+            'page-manager.product'
+        );
     }
 }
 ```
@@ -358,6 +357,17 @@ class ProductTemplate implements PageTemplate
     }
 }
 
+```
+
+## Guards
+
+Si vous voulez protéger certaines pages derrière des guards, il suffit d'ajouter dans la config `laravel-filament-page-manager.php`:
+
+```php
+    // If you want certain pages to be protected by a Guard, indicate the list of guards you want to make available (must be in `config('auth.guards')` keys)
+    'guards' => [
+        'myquard',
+    ],
 ```
 
 ## Facade and Helpers

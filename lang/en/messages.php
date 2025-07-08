@@ -12,6 +12,7 @@ return [
     'template' => 'Template',
     'special' => 'Special page',
     'locale' => 'Language',
+    'guard' => 'Guard',
     'parent' => 'Parent page',
     'publication' => 'Publication',
     'preview_link' => 'Preview',

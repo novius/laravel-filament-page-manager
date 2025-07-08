@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $parent_id
  * @property int $locale_parent_id
  * @property ?Special $special
+ * @property ?string $guard
  * @property PublicationStatus $publication_status
  * @property Carbon|null $published_first_at
  * @property Carbon|null $published_at

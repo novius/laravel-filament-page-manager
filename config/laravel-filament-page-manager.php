@@ -35,4 +35,8 @@ return [
         Homepage::class,
         Page404::class,
     ],
+
+    // If you want certain pages to be protected by a Guard, indicate the list of guards you want to make available (must be in `config('auth.guards')` keys)
+    'guards' => [
+    ],
 ];

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('slug', 191);
             $table->string('locale', 15);
             $table->string('template');
-            $table->string('special')->nullable();
+            $table->string('special')->nullable()->index();
 
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->unsignedBigInteger('locale_parent_id')->nullable();

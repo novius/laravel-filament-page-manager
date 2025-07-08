@@ -12,6 +12,7 @@ return [
     'template' => 'Gabarit',
     'special' => 'Page spéciale',
     'locale' => 'Langue',
+    'guard' => 'Protection',
     'parent' => 'Page parente',
     'publication' => 'Publication',
     'preview_link' => 'Prévisualisation',

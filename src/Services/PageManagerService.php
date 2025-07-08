@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelFilamentPageManager\Services;
 
+use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -13,6 +14,7 @@ use LaravelLang\Locales\Data\LocaleData;
 use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 use Novius\LaravelFilamentPageManager\Contracts\Special;
+use Novius\LaravelFilamentPageManager\Http\Middleware\HandlePages;
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelMeta\Facades\CurrentModel;
 use ReflectionClass;
@@ -125,12 +127,36 @@ class PageManagerService
         }
 
         Route::get('{page}', fn (Request $request, $page) => $this->render($request, $page))
+            ->middleware(HandlePages::class)
             ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
             ->name('page-manager.page');
     }
 
-    public function render(Request $request, Page $page): View
+    public function route(Special $special, string $subPath, Closure $routeCallback, ?string $name = null): ?\Illuminate\Routing\Route
     {
+        $page = $this->model()::getSpecialPage($special, app()->getLocale());
+        if ($page) {
+            $route = Route::get($page->slug.'/'.ltrim($subPath, '/'), $routeCallback)
+                ->where([
+                    'page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$'),
+                ])
+                ->middleware(HandlePages::class.':'.$special->key())
+                ->name($name ?? 'page-manager.'.$special->key().'.'.Str::slug($subPath));
+        }
+
+        return $route ?? null;
+    }
+
+    public function render(Request $request, ?Page $page = null): View
+    {
+        if ($page === null) {
+            $param = $request->route('page');
+            if ($param instanceof Page) {
+                $page = $param;
+            } else {
+                abort(404);
+            }
+        }
         CurrentModel::setModel($page);
 
         return view($page->template->view(), $page->template->viewParameters($request, $page));
