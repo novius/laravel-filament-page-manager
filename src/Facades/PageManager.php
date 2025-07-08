@@ -20,7 +20,7 @@ use Novius\LaravelFilamentPageManager\Services\PageManagerService;
  * @method static Collection<string, Special> specialPages()
  * @method static Special|null special(string $specialKey)
  * @method static Collection<string, LocaleData> locales()
- * @method static View render(Request $request, Page $page)
+ * @method static View render(Request $request, ?Page $page = null)
  * @method static void routes()
  * @method static Route|null route(Special $special, string $subPath, Closure $routeCallback, ?string $name = null)
  *
