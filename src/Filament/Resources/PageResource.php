@@ -30,6 +30,7 @@ use Novius\LaravelFilamentPageManager\Facades\PageManager;
 use Novius\LaravelFilamentPageManager\Filament\Resources\Forms\Components\SelectGuard;
 use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
 use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\GuardColumn;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\GuardFilter;
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\ExpiredAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublicationStatus;
@@ -349,6 +350,8 @@ class PageResource extends Resource
                 SelectFilter::make('special')
                     ->label(trans('laravel-filament-page-manager::messages.special'))
                     ->options(fn () => PageManager::specialPages()->mapWithKeys(fn (Special $template) => [$template->key() => $template->name()])),
+                GuardFilter::make('guard')
+                    ->setGuards(config('laravel-filament-page-manager.guards', [])),
             ])
             ->actions([
                 EditAction::make(),
