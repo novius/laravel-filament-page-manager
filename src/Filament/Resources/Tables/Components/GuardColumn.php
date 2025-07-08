@@ -15,7 +15,7 @@ class GuardColumn extends TextColumn
 
         $this->label(trans('laravel-filament-page-manager::messages.guard'));
         $this->hidden(fn () => count($this->getGuards()) < 1);
-        $this->formatStateUsing(fn (?string $state) => $this->getGuards() > 1 ? $this->getGuardName($state) : '');
+        $this->formatStateUsing(fn (?string $state) => count($this->getGuards()) > 1 ? $this->getGuardName($state) : '');
         $this->icon(fn (?string $state) => $this->getGuardIcon($state));
     }
 }

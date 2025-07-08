@@ -16,6 +16,7 @@ class SelectGuard extends Select
         $this->label(trans('laravel-filament-page-manager::messages.guard'));
         $this->hidden(fn () => count($this->getGuards()) < 1);
         $this->options(fn () => collect($this->getGuards())
-            ->mapWithKeys(fn ($guard) => [$guard => $this->getGuardName($guard)]));
+            ->mapWithKeys(fn (string $guard) => [$guard => $this->getGuardName($guard)])
+            ->toArray());
     }
 }
