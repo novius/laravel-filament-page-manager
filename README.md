@@ -100,9 +100,9 @@ class StandardTemplate implements PageTemplate
     public function fields(): array
     {
         return [
-            RichEditor::make('content')
+            RichEditor::make('extras.content') // Prefix the name by `extras.` to save it in the extras fields
                 ->label('Content'),
-            DatePicker::make('date')
+            DatePicker::make('extra.date')
                 ->label('Date'),
         ];
     }
@@ -148,7 +148,7 @@ class StandardTemplate extends DefaultTemplate
         return [
             ...parent::fields(),        
 
-            DatePicker::make('date')
+            DatePicker::make('extras.date')
                 ->label('Date'),
         ];
     }

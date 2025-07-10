@@ -249,7 +249,7 @@ class PageResource extends Resource
 
                 return trans('laravel-filament-page-manager::messages.template');
             })
-            ->schema(function (Get $get, Set $set) use ($getTemplate) {
+            ->schema(function (Get $get) use ($getTemplate) {
                 $template = $getTemplate($get);
                 if ($template !== null) {
                     if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tabs\Tab) {
@@ -257,9 +257,6 @@ class PageResource extends Resource
                         if ($field instanceof Tabs\Tab) {
                             return $field->getChildComponents();
                         }
-                    }
-                    foreach ($template->casts() as $key => $cast) {
-                        $set('extras.'.$key, $get('extras.'.$key));
                     }
 
                     return $template->fields();
@@ -272,7 +269,6 @@ class PageResource extends Resource
 
                 return $template === null;
             })
-            ->statePath('extras')
             ->key('template_tab');
     }
 
