@@ -19,6 +19,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -356,7 +357,7 @@ class PageResource extends Resource
                     PreviewAction::make(),
                     ViewAction::make(),
                 ]),
-            ])
+            ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([
                     PublicationBulkAction::make(),
