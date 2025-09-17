@@ -59,7 +59,7 @@ abstract class PageSeeder extends Seeder
 
             $pageParent = Page::query()
                 ->when($special, function (Builder|Page $query) use ($special) {
-                    return $query->where('special', $special->key());
+                    return $query->where('special', (new $special)->key());
                 })
                 ->first();
 
@@ -77,7 +77,7 @@ abstract class PageSeeder extends Seeder
                     $page = Page::withLocale($locale->code)->when(
                         $special,
                         function (Builder|Page $query) use ($special) {
-                            return $query->where('special', $special->key());
+                            return $query->where('special', (new $special)->key());
                         },
                         function (Builder|Page $query) use ($titleLocalized) {
                             return $query->where('title', $titleLocalized);
@@ -89,8 +89,8 @@ abstract class PageSeeder extends Seeder
                         $page->slug = $slug;
                     }
                     $page->title = $titleLocalized;
-                    $page->special = $special;
-                    $page->template = $template;
+                    $page->special = new $special;
+                    $page->template = new $template;
                     $page->publication_status = PublicationStatus::published;
                     $page->save();
                 }
