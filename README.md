@@ -391,6 +391,39 @@ Page::getSpecialPage(Page404::class); // return the Page defined as special Page
 Page::getSpecialPage(new Page404()); // return the Page defined as special Page404 in the current locale
 ```
 
+## Seeder
+
+You can use the `\Novius\LaravelFilamentPageManager\Database\Seeders\PageSeeder` to create menus.
+
+Create a new seeder, extend the class and define the `pages()` method. You can also override the `postCreate()` method to add custom logic.
+
+```php
+namespace Database\Seeders;
+
+use Novius\LaravelFilamentPageManager\SpecialPages\Homepage;
+use Novius\LaravelFilamentPageManager\Templates\DefaultTemplate;
+
+class PageSeeder extends \Novius\LaravelFilamentPageManager\Database\Seeders\PageSeeder
+{
+    protected function pages(): array
+    {
+        return [
+            [
+                'title' => 'Home', 
+                'slug' => '/', 
+                'special' => Homepage::class,
+                'template' => DefaultTemplate::class,
+            ],
+        ];
+    }
+    
+    protected function postCreate(array $config, LocaleData $locale, Menu $menu): void
+    {
+        // Add custom logic here
+    }
+}
+```
+
 ## Lint
 
 Run php-cs with:
