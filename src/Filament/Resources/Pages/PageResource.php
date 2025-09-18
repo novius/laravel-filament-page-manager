@@ -111,14 +111,14 @@ class PageResource extends Resource
             Slug::make('slug')
                 ->label(trans('laravel-filament-page-manager::messages.slug'))
                 ->fromField($title, function (Get $get) {
-                    $value = $get('special');
+                    $special = $get('special');
 
-                    return ! empty($value) && PageManager::special($value)?->pageSlug() !== null;
+                    return $special?->pageSlug() !== null;
                 })
                 ->readOnly(function (Get $get) {
-                    $value = $get('special');
-                    if (! empty($value)) {
-                        return PageManager::special($value)?->pageSlug() !== null;
+                    $special = $get('special');
+                    if ($special !== null) {
+                        return $special->pageSlug() !== null;
                     }
 
                     return false;
