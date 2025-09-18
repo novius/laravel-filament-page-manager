@@ -1,6 +1,6 @@
 <?php
 
-namespace Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
+namespace Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;

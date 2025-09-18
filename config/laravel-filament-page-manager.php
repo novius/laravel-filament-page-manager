@@ -1,6 +1,6 @@
 <?php
 
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\PageResource;
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelFilamentPageManager\SpecialPages\Homepage;
 use Novius\LaravelFilamentPageManager\SpecialPages\Page404;

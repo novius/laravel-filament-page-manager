@@ -1,30 +1,26 @@
 <?php
 
-namespace Novius\LaravelFilamentPageManager\Filament\Resources;
+namespace Novius\LaravelFilamentPageManager\Filament\Resources\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\ListPages;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\CreatePage;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\ViewPage;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\EditPage;
 use Exception;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,10 +30,15 @@ use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
 use Novius\LaravelFilamentPageManager\Filament\Resources\Forms\Components\SelectGuard;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages\CreatePage;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages\EditPage;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages\ListPages;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages\ViewPage;
 use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\GuardColumn;
 use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\GuardFilter;
 use Novius\LaravelFilamentPageManager\Models\Page;
+use Novius\LaravelFilamentPageManager\StateCasts\SpecialPageStateCast;
+use Novius\LaravelFilamentPageManager\StateCasts\TemplateStateCast;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\ExpiredAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublicationStatus;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedAt;
@@ -135,11 +136,7 @@ class PageResource extends Resource
                 ),
 
             Select::make('special')
-                ->afterStateHydrated(function (Select $component, $state) {
-                    if ($state instanceof Special) {
-                        $component->state($state->key());
-                    }
-                })
+                ->stateCast(app(SpecialPageStateCast::class))
                 ->label(trans('laravel-filament-page-manager::messages.special'))
                 ->options(fn () => PageManager::specialPages()
                     ->mapWithKeys(fn (Special $special) => [
@@ -148,14 +145,13 @@ class PageResource extends Resource
                     ->toArray())
                 ->native(false)
                 ->allowHtml()
-                ->afterStateUpdated(function ($state, Set $set) {
-                    if (! empty($state)) {
-                        $special = PageManager::special($state);
-                        $slug = $special?->pageSlug();
+                ->afterStateUpdated(function (?Special $state, Set $set) {
+                    if ($state !== null) {
+                        $slug = $state->pageSlug();
                         if ($slug !== null) {
                             $set('slug', $slug);
                         }
-                        $template = $special?->template();
+                        $template = $state->template();
                         if ($template !== null) {
                             $set('template', $template->key());
                         }
@@ -168,16 +164,12 @@ class PageResource extends Resource
                 ->reactive(),
 
             Select::make('template')
-                ->afterStateHydrated(function (Select $component, $state) {
-                    if ($state instanceof PageTemplate) {
-                        $component->state($state->key());
-                    }
-                })
+                ->stateCast(app(TemplateStateCast::class))
                 ->label(trans('laravel-filament-page-manager::messages.template'))
                 ->options(function (Get $get) {
-                    $value = $get('special');
-                    if (! empty($value)) {
-                        $template = PageManager::special($value)?->template();
+                    $special = $get('special');
+                    if (! empty($special)) {
+                        $template = $special->template();
                         if ($template !== null) {
                             return [$template->key() => $template->name()];
                         }
@@ -234,29 +226,17 @@ class PageResource extends Resource
 
     protected static function templateTab(): Tab
     {
-        $getTemplate = static function (Get $get) {
-            $template = $get('template');
-            if ($template !== null) {
-                $template = PageManager::template($template);
-                if ($template !== null) {
-                    return $template;
-                }
-            }
-
-            return null;
-        };
-
         return Tab::make('template_tab')
-            ->label(function (Get $get) use ($getTemplate) {
-                $template = $getTemplate($get);
+            ->label(function (Get $get) {
+                $template = $get('template');
                 if ($template !== null) {
                     return $template->name();
                 }
 
                 return trans('laravel-filament-page-manager::messages.template');
             })
-            ->schema(function (Get $get) use ($getTemplate) {
-                $template = $getTemplate($get);
+            ->schema(function (Get $get)  {
+                $template = $get('template');
                 if ($template !== null) {
                     if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tab) {
                         $field = collect($template->fields())->first();
@@ -270,8 +250,8 @@ class PageResource extends Resource
 
                 return [];
             })
-            ->hidden(function (Get $get) use ($getTemplate) {
-                $template = $getTemplate($get);
+            ->hidden(function (Get $get)  {
+                $template = $get('template');
 
                 return $template === null;
             })

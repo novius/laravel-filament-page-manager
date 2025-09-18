@@ -6,7 +6,7 @@ use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Resources\Resource;
 use InvalidArgumentException;
-use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource;
+use Novius\LaravelFilamentPageManager\Filament\Resources\Pages\PageResource;
 
 class PageManagerPlugin implements Plugin
 {

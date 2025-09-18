@@ -1,16 +1,16 @@
 <?php
 
-namespace Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages;
+namespace Novius\LaravelFilamentPageManager\Filament\Resources\Pages\Pages;
 
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 use Novius\LaravelFilamentActionPreview\Filament\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Filament\PageManagerPlugin;
 
-class EditPage extends EditRecord
+class ViewPage extends ViewRecord
 {
     public static function getResource(): string
     {
@@ -21,7 +21,7 @@ class EditPage extends EditRecord
     {
         return [
             PreviewAction::make(),
-            ViewAction::make(),
+            EditAction::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
