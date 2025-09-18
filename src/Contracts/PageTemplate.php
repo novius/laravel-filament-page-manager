@@ -2,7 +2,6 @@
 
 namespace Novius\LaravelFilamentPageManager\Contracts;
 
-use Filament\Forms\Components\Component;
 use Illuminate\Http\Request;
 use Novius\LaravelFilamentPageManager\Models\Page;
 
@@ -12,7 +11,7 @@ interface PageTemplate
 
     public function name(): string;
 
-    /** @return array<Component> */
+    /** @return array<\Filament\Schemas\Components\Component> */
     public function fields(): array;
 
     public function casts(): array;

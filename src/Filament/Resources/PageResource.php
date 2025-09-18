@@ -2,24 +2,29 @@
 
 namespace Novius\LaravelFilamentPageManager\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\ListPages;
+use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\CreatePage;
+use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\ViewPage;
+use Novius\LaravelFilamentPageManager\Filament\Resources\PageResource\Pages\EditPage;
 use Exception;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,7 +60,7 @@ class PageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $recordRouteKeyName = 'id';
 
@@ -74,17 +79,17 @@ class PageResource extends Resource
         return trans('laravel-filament-page-manager::messages.modelsLabel');
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make()
                     ->columnSpanFull()
                     ->tabs([
-                        Tabs\Tab::make('main')
+                        Tab::make('main')
                             ->label(trans('laravel-filament-page-manager::messages.panel_main'))
                             ->schema(static::tabMain()),
-                        Tabs\Tab::make('seo')
+                        Tab::make('seo')
                             ->label(trans('laravel-filament-page-manager::messages.panel_seo'))
                             ->schema(static::tabSeo()),
                         static::templateTab(),
@@ -227,7 +232,7 @@ class PageResource extends Resource
         ];
     }
 
-    protected static function templateTab(): Tabs\Tab
+    protected static function templateTab(): Tab
     {
         $getTemplate = static function (Get $get) {
             $template = $get('template');
@@ -241,7 +246,7 @@ class PageResource extends Resource
             return null;
         };
 
-        return Tabs\Tab::make('template_tab')
+        return Tab::make('template_tab')
             ->label(function (Get $get) use ($getTemplate) {
                 $template = $getTemplate($get);
                 if ($template !== null) {
@@ -253,9 +258,9 @@ class PageResource extends Resource
             ->schema(function (Get $get) use ($getTemplate) {
                 $template = $getTemplate($get);
                 if ($template !== null) {
-                    if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tabs\Tab) {
+                    if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tab) {
                         $field = collect($template->fields())->first();
-                        if ($field instanceof Tabs\Tab) {
+                        if ($field instanceof Tab) {
                             return $field->getChildComponents();
                         }
                     }
@@ -350,15 +355,15 @@ class PageResource extends Resource
                 GuardFilter::make('guard')
                     ->setGuards(config('laravel-filament-page-manager.guards', [])),
             ])
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
                 ActionGroup::make([
                     PreviewAction::make(),
                     ViewAction::make(),
                 ]),
-            ], ActionsPosition::BeforeColumns)
-            ->bulkActions([
+            ], RecordActionsPosition::BeforeColumns)
+            ->toolbarActions([
                 BulkActionGroup::make([
                     PublicationBulkAction::make(),
                     DeleteBulkAction::make(),
@@ -369,10 +374,10 @@ class PageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPages::route('/'),
-            'create' => Pages\CreatePage::route('/create'),
-            'view' => Pages\ViewPage::route('/{record:id}'),
-            'edit' => Pages\EditPage::route('/{record:id}/edit'),
+            'index' => ListPages::route('/'),
+            'create' => CreatePage::route('/create'),
+            'view' => ViewPage::route('/{record:id}'),
+            'edit' => EditPage::route('/{record:id}/edit'),
         ];
     }
 

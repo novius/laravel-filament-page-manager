@@ -16,7 +16,7 @@ This package allows you to manage pages with custom templates.
 
 * PHP >= 8.2
 * Laravel >= 11.0
-* Laravel Filament >= 3.3
+* Laravel Filament >= 4
 
 ## Installation
 
