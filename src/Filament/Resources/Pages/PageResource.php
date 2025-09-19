@@ -61,7 +61,7 @@ class PageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $recordRouteKeyName = 'id';
 
@@ -140,11 +140,16 @@ class PageResource extends Resource
                 ->label(trans('laravel-filament-page-manager::messages.special'))
                 ->options(fn () => PageManager::specialPages()
                     ->mapWithKeys(fn (Special $special) => [
-                        $special->key() => '<span class="flex gap-2 items-center">'.($special->icon() ? svg($special->icon(), 'h-4 w-4')->toHtml() : '').'<span>'.$special->name().'</span></span>',
+                        $special->key() => '<span style="display:flex;gap:2px;align-items: center;">'.
+                            ($special->icon() ? svg($special->icon(), attributes: [
+                                'style' => 'height: calc(var(--spacing) * 4);width: calc(var(--spacing) * 4);',
+                            ])->toHtml() : '')
+                            .'<span>'.$special->name().'</span></span>',
                     ])
                     ->toArray())
                 ->native(false)
                 ->allowHtml()
+                ->getOptionLabelUsing(fn (?Special $value) => $value?->key())
                 ->afterStateUpdated(function (?Special $state, Set $set) {
                     if ($state !== null) {
                         $slug = $state->pageSlug();
@@ -235,7 +240,7 @@ class PageResource extends Resource
 
                 return trans('laravel-filament-page-manager::messages.template');
             })
-            ->schema(function (Get $get)  {
+            ->schema(function (Get $get) {
                 $template = $get('template');
                 if ($template !== null) {
                     if (count($template->fields()) === 1 && $template->fields()[0] instanceof Tab) {
@@ -250,7 +255,7 @@ class PageResource extends Resource
 
                 return [];
             })
-            ->hidden(function (Get $get)  {
+            ->hidden(function (Get $get) {
                 $template = $get('template');
 
                 return $template === null;
