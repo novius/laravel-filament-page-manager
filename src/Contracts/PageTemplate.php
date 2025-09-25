@@ -16,6 +16,9 @@ interface PageTemplate
 
     public function casts(): array;
 
+    /**
+     * @phpstan-return view-string
+     */
     public function view(): string;
 
     public function viewParameters(Request $request, Page $page): array;

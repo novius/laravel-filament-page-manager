@@ -186,6 +186,7 @@ class PageResource extends Resource
                 ->live()
                 ->getOptionLabelUsing(fn (?PageTemplate $value) => $value?->key())
                 ->afterStateUpdated(function (Select $component) {
+                    /** @phpstan-ignore method.notFound */
                     $component
                         ->getContainer()->getParentComponent()?->getContainer()
                         ->getComponent('template_tab')
