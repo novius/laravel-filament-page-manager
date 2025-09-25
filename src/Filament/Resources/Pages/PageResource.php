@@ -184,6 +184,7 @@ class PageResource extends Resource
                 })
                 ->required()
                 ->live()
+                ->getOptionLabelUsing(fn (?PageTemplate $value) => $value?->key())
                 ->afterStateUpdated(function (Select $component) {
                     $component
                         ->getContainer()->getParentComponent()?->getContainer()
