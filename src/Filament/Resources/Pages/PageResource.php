@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelFilamentPageManager\Filament\Resources\Pages;
 
+use BackedEnum;
 use Exception;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -25,7 +26,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rules\Unique;
-use Novius\LaravelFilamentActionPreview\Filament\Tables\Actions\PreviewAction;
+use Novius\LaravelFilamentActionPreview\Filament\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Contracts\PageTemplate;
 use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
@@ -61,7 +62,7 @@ class PageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $recordRouteKeyName = 'id';
 
