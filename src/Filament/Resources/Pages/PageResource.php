@@ -44,7 +44,7 @@ use Novius\LaravelFilamentPublishable\Filament\Forms\Components\ExpiredAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublicationStatus;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedFirstAt;
-use Novius\LaravelFilamentPublishable\Filament\Tables\Actions\PublicationBulkAction;
+use Novius\LaravelFilamentPublishable\Filament\Actions\PublicationBulkAction;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Columns\PublicationColumn;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Filters\PublicationStatusFilter;
 use Novius\LaravelFilamentSlug\Filament\Forms\Components\Slug;
