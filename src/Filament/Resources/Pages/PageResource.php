@@ -40,11 +40,11 @@ use Novius\LaravelFilamentPageManager\Filament\Resources\Tables\Components\Guard
 use Novius\LaravelFilamentPageManager\Models\Page;
 use Novius\LaravelFilamentPageManager\StateCasts\SpecialPageStateCast;
 use Novius\LaravelFilamentPageManager\StateCasts\TemplateStateCast;
+use Novius\LaravelFilamentPublishable\Filament\Actions\PublicationBulkAction;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\ExpiredAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublicationStatus;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedAt;
 use Novius\LaravelFilamentPublishable\Filament\Forms\Components\PublishedFirstAt;
-use Novius\LaravelFilamentPublishable\Filament\Actions\PublicationBulkAction;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Columns\PublicationColumn;
 use Novius\LaravelFilamentPublishable\Filament\Tables\Filters\PublicationStatusFilter;
 use Novius\LaravelFilamentSlug\Filament\Forms\Components\Slug;
