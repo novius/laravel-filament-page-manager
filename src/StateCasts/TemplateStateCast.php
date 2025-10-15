@@ -10,6 +10,10 @@ class TemplateStateCast implements StateCast
 {
     public function get(mixed $state): ?PageTemplate
     {
+        if (is_null($state)) {
+            return null;
+        }
+
         return PageManager::template($state);
     }
 
