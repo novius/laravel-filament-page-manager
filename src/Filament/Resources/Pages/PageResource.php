@@ -191,6 +191,7 @@ class PageResource extends Resource
                     $component
                         ->getContainer()->getParentComponent()?->getContainer()
                         ->getComponent('template_tab')
+                        ?->getChildSchema()
                         ?->fill();
                 }),
 
