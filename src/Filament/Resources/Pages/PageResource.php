@@ -350,7 +350,7 @@ class PageResource extends Resource
                     PreviewAction::make(),
                     ViewAction::make(),
                 ]),
-            ], RecordActionsPosition::BeforeColumns)
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     PublicationBulkAction::make(),
