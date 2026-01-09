@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Novius\LaravelFilamentPageManager\Contracts\Special;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
-use Novius\LaravelFilamentPageManager\Http\Middleware\HandlePages;use Novius\LaravelFilamentPageManager\Traits\IsSpecialPage;
+use Novius\LaravelFilamentPageManager\Http\Middleware\HandlePages;
+use Novius\LaravelFilamentPageManager\Traits\IsSpecialPage;
 
 class Homepage implements Special
 {
