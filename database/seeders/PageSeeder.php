@@ -63,9 +63,15 @@ abstract class PageSeeder extends Seeder
             $slug = Arr::get($config, 'slug');
 
             $pageParent = Page::query()
-                ->when($special, function (Builder|Page $query) use ($special) {
-                    return $query->where('special', (new $special)->key());
-                })
+                ->when(
+                    $special,
+                    function (Builder|Page $query) use ($special) {
+                        return $query->where('special', (new $special)->key());
+                    },
+                    function (Builder|Page $query) use ($slug) {
+                        return $query->where('slug', $slug);
+                    }
+                )
                 ->first();
 
             foreach ($locales as $locale) {
