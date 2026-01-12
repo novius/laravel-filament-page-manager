@@ -103,7 +103,7 @@ abstract class PageSeeder extends Seeder
                         $page->special = new $special;
                     }
                     if (! empty($guard)) {
-                        $pageParent->guard = $guard;
+                        $page->guard = $guard;
                     }
                     $page->template = new $template;
                     $page->publication_status = PublicationStatus::published;
