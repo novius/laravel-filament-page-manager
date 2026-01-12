@@ -2,9 +2,7 @@
 
 namespace Novius\LaravelFilamentPageManager\Facades;
 
-use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\View\View;
@@ -22,7 +20,6 @@ use Novius\LaravelFilamentPageManager\Services\PageManagerService;
  * @method static Collection<string, LocaleData> locales()
  * @method static View render(Request $request, ?Page $page = null)
  * @method static void routes()
- * @method static Route|null route(Special $special, string $subPath, Closure $routeCallback, ?string $name = null)
  *
  * @see PageManagerService
  */

@@ -325,8 +325,7 @@ class Product implements Special
 
     public function routes(): void
     {
-        PageManager::route(
-            $this,
+        $this->addRouteGet(
             '{product}',
             static function (Request $request, Product $product) {
                 return PageManager::render($request);

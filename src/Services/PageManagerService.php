@@ -132,21 +132,6 @@ class PageManagerService
             ->name('page-manager.page');
     }
 
-    public function route(Special $special, string $subPath, Closure $routeCallback, ?string $name = null, string $method = 'get'): ?\Illuminate\Routing\Route
-    {
-        $page = $this->model()::getSpecialPage($special, app()->getLocale());
-        if ($page) {
-            $route = Route::$method($page->slug.'/'.ltrim($subPath, '/'), $routeCallback)
-                ->where([
-                    'page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$'),
-                ])
-                ->middleware(HandlePages::class.':'.$special->key())
-                ->name($name ?? 'page-manager.'.$special->key().'.'.Str::slug($subPath));
-        }
-
-        return $route ?? null;
-    }
-
     public function render(Request $request, ?Page $page = null): View
     {
         if ($page === null) {
