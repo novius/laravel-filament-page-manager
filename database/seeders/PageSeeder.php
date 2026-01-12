@@ -35,7 +35,7 @@ abstract class PageSeeder extends Seeder
             if (! empty($special) && ! class_exists($special)) {
                 throw new RuntimeException('Special class '.$special.' does not exist');
             }
-            if (! in_array(Special::class, class_implements($special), true)) {
+            if (! empty($special) && ! in_array(Special::class, class_implements($special), true)) {
                 throw new RuntimeException('Special class '.$special.' does not implement '.Special::class);
             }
 
