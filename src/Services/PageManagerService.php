@@ -2,7 +2,6 @@
 
 namespace Novius\LaravelFilamentPageManager\Services;
 
-use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
