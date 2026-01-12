@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelFilamentPageManager\Filament\Resources\Concerns;
 
+use BackedEnum;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
@@ -56,7 +57,7 @@ trait InteractWithGuards
         return $resource !== null ? $resource::getModelLabel() : $guard;
     }
 
-    protected function getGuardIcon(?string $guard): ?string
+    protected function getGuardIcon(?string $guard): string|BackedEnum|null
     {
         /** @var class-string<resource>|null $resource */
         $resource = $this->getGuardResource($guard);
