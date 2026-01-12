@@ -51,6 +51,11 @@ abstract class PageSeeder extends Seeder
                 throw new RuntimeException('Template class '.$template.' does not implement '.PageTemplate::class);
             }
 
+            $guard = Arr::get($config, 'guard');
+            if (! empty($guard) && ! in_array(array_keys(config('auth.guards', [])), $guard, true)) {
+                throw new RuntimeException('The guard '.$guard.' does not exist in config/auth.guards');
+            }
+
             $title = Arr::get($config, 'title');
             if (empty($title)) {
                 throw new RuntimeException('title key must be set');
@@ -67,7 +72,12 @@ abstract class PageSeeder extends Seeder
                 $titleLocalized = $this->getLocalizedString($locale, $title);
 
                 if ($pageParent && $pageParent->locale === $locale->code) {
-                    $pageParent->special = new $special;
+                    if (! empty($special)) {
+                        $pageParent->special = new $special;
+                    }
+                    if (! empty($guard)) {
+                        $pageParent->guard = $guard;
+                    }
                     $pageParent->template = new $template;
                     $pageParent->publication_status = PublicationStatus::published;
                     $pageParent->save();
@@ -89,7 +99,12 @@ abstract class PageSeeder extends Seeder
                         $page->slug = $slug;
                     }
                     $page->title = $titleLocalized;
-                    $page->special = new $special;
+                    if (! empty($special)) {
+                        $page->special = new $special;
+                    }
+                    if (! empty($guard)) {
+                        $pageParent->guard = $guard;
+                    }
                     $page->template = new $template;
                     $page->publication_status = PublicationStatus::published;
                     $page->save();
