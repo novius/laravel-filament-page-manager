@@ -52,7 +52,7 @@ abstract class PageSeeder extends Seeder
             }
 
             $guard = Arr::get($config, 'guard');
-            if (! empty($guard) && ! in_array(array_keys(config('auth.guards', [])), $guard, true)) {
+            if (! empty($guard) && ! in_array($guard, array_keys(config('auth.guards', [])), true)) {
                 throw new RuntimeException('The guard '.$guard.' does not exist in config/auth.guards');
             }
 
