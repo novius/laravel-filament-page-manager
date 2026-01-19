@@ -37,7 +37,7 @@ trait IsSpecialPage
 
     protected ?Page $instancePage = null;
 
-    public function addRouteGet(string $subPath, array|string|callable $action, ?string $name = null): ?\Illuminate\Routing\Route
+    protected function addRouteGet(string $subPath, array|string|callable $action, ?string $name = null): ?\Illuminate\Routing\Route
     {
         return $this->addRoute('get', $subPath, $action, $name);
     }
