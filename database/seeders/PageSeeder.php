@@ -113,6 +113,9 @@ abstract class PageSeeder extends Seeder
                     }
                     $page->template = new $template;
                     $page->publication_status = PublicationStatus::published;
+                    if ($pageParent) {
+                        $page->locale_parent_id = $pageParent->id;
+                    }
                     $page->save();
                 }
                 /** @var Page $pageParent */
