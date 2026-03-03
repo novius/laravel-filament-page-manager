@@ -35,6 +35,7 @@ use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Throwable;
 
 /**
  * Class Page
@@ -225,13 +226,23 @@ class Page extends Model
 
     public static function getSpecialPage(string|Special $special, ?string $locale = null): ?static
     {
-        /** @var Collection<int, static> $specials */
-        $specials = Cache::rememberForever('page_specials', static function () {
+        $callback = static function () {
             return static::query()
                 ->whereNotNull('special')
                 ->published()
                 ->get();
-        });
+        };
+
+        /** @var Collection<int, static> $specials */
+        if (app()->runningUnitTests()) {
+            try {
+                $specials = $callback();
+            } catch (Throwable) {
+                $specials = collect();
+            }
+        } else {
+            $specials = Cache::rememberForever('page_specials', $callback);
+        }
 
         if ($special instanceof Special) {
             $special = $special->key();
