@@ -233,7 +233,6 @@ class Page extends Model
                 ->get();
         };
 
-        /** @var Collection<int, static> $specials */
         if (app()->runningUnitTests()) {
             try {
                 $specials = $callback();
@@ -250,6 +249,7 @@ class Page extends Model
             $special = (new $special)->key();
         }
 
+        /** @var Collection<int, static> $specials */
         return $specials->firstWhere(function (Page $page) use ($special, $locale) {
             return $page->special?->key() === $special && $page->locale === $locale;
         });
