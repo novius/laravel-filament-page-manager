@@ -78,16 +78,6 @@ abstract class PageSeeder extends Seeder
                 $titleLocalized = $this->getLocalizedString($locale, $title);
 
                 if ($pageParent && $pageParent->locale === $locale->code) {
-                    if (! empty($special)) {
-                        $pageParent->special = new $special;
-                    }
-                    if (! empty($guard)) {
-                        $pageParent->guard = $guard;
-                    }
-                    $pageParent->template = new $template;
-                    $pageParent->publication_status = PublicationStatus::published;
-                    $pageParent->save();
-
                     $page = $pageParent;
                 } else {
                     $page = Page::withLocale($locale->code)->when(
@@ -102,22 +92,23 @@ abstract class PageSeeder extends Seeder
                     if ($page === null) {
                         $page = new Page;
                         $page->locale = $locale->code;
-                        $page->slug = $slug;
                     }
-                    $page->title = $titleLocalized;
-                    if (! empty($special)) {
-                        $page->special = new $special;
-                    }
-                    if (! empty($guard)) {
-                        $page->guard = $guard;
-                    }
-                    $page->template = new $template;
-                    $page->publication_status = PublicationStatus::published;
-                    if ($pageParent) {
-                        $page->locale_parent_id = $pageParent->id;
-                    }
-                    $page->save();
                 }
+                $page->slug = $slug;
+                $page->title = $titleLocalized;
+                if (! empty($special)) {
+                    $page->special = new $special;
+                }
+                if (! empty($guard)) {
+                    $page->guard = $guard;
+                }
+                $page->template = new $template;
+                $page->publication_status = PublicationStatus::published;
+                if ($pageParent) {
+                    $page->locale_parent_id = $pageParent->id;
+                }
+                $page->save();
+
                 /** @var Page $pageParent */
                 $pageParent = $pageParent ?? $page;
 
