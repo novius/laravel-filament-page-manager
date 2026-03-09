@@ -248,6 +248,7 @@ class Page extends Model
         } elseif (in_array(Special::class, class_implements($special), true)) {
             $special = (new $special)->key();
         }
+        $locale = $locale ?? app()->currentLocale();
 
         /** @var Collection<int, static> $specials */
         return $specials->firstWhere(function (Page $page) use ($special, $locale) {
