@@ -212,7 +212,7 @@ class Page extends Model
 
     public function scopeHomepage(Builder|Page $query): void
     {
-        $query->where('special', (new HomePage)->key());
+        $query->where('special', (new Homepage)->key());
     }
 
     public static function getHomePage(?string $locale = null, ?Request $request = null): static
