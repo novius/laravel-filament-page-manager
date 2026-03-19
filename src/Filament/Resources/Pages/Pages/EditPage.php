@@ -7,8 +7,10 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 use Novius\LaravelFilamentActionPreview\Filament\Actions\PreviewAction;
 use Novius\LaravelFilamentPageManager\Filament\PageManagerPlugin;
+use Novius\LaravelFilamentPageManager\Models\Page;
 
 class EditPage extends EditRecord
 {
@@ -26,5 +28,19 @@ class EditPage extends EditRecord
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
+    }
+
+    /**
+     * @param  Page  $record
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $data['extras'] = array_merge(
+            $record->extras->toArray(),
+            $data['extras'] ?? []
+        );
+
+        return parent::handleRecordUpdate($record, $data);
     }
 }
