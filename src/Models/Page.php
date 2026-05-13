@@ -228,21 +228,39 @@ class Page extends Model
 
     public static function getSpecialPage(string|Special $special, ?string $locale = null): ?static
     {
-        $callback = static function () {
+        $callback = static function (): array {
             return static::query()
                 ->whereNotNull('special')
                 ->published()
-                ->get();
+                ->get()
+                ->map(static function (Page $page): array {
+                    return [
+                        'attributes' => $page->getAttributes(),
+                        'special_key' => $page->special?->key(),
+                        'locale' => $page->locale,
+                    ];
+                })
+                ->values()
+                ->all();
         };
 
         if (app()->runningUnitTests()) {
             try {
                 $specials = $callback();
             } catch (Throwable) {
-                $specials = collect();
+                $specials = [];
             }
         } else {
             $specials = Cache::rememberForever('page_specials', $callback);
+            /**
+             * This test makes sense if the cache was built in an earlier version of the package
+             *
+             * @phpstan-ignore-next-line
+             */
+            if (! is_array($specials)) {
+                Cache::forget('page_specials');
+                $specials = Cache::rememberForever('page_specials', $callback);
+            }
         }
 
         if ($special instanceof Special) {
@@ -252,10 +270,16 @@ class Page extends Model
         }
         $locale = $locale ?? app()->currentLocale();
 
-        /** @var Collection<int, static> $specials */
-        return $specials->firstWhere(function (Page $page) use ($special, $locale) {
-            return $page->special?->key() === $special && $page->locale === $locale;
+        $page = collect($specials)->firstWhere(function (array $page) use ($special, $locale) {
+            return $page['special_key'] === $special && $page['locale'] === $locale;
         });
+
+        if ($page === null) {
+            return null;
+        }
+
+        /** @phpstan-ignore-next-line  */
+        return (new static)->newFromBuilder($page['attributes']);
     }
 
     protected function seoCanonicalUrl(): Attribute
