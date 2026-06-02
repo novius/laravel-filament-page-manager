@@ -52,6 +52,7 @@ use Novius\LaravelFilamentTranslatable\Filament\Tables\Columns\LocaleColumn;
 use Novius\LaravelFilamentTranslatable\Filament\Tables\Columns\TranslationsColumn;
 use Novius\LaravelFilamentTranslatable\Filament\Tables\Filters\LocaleFilter;
 use Novius\LaravelMeta\Traits\FilamentResourceHasMeta;
+use UnitEnum;
 
 class PageResource extends Resource
 {
@@ -61,9 +62,32 @@ class PageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
-
     protected static ?string $recordRouteKeyName = 'id';
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return config('laravel-filament-page-manager.filament.navigation.group');
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return config('laravel-filament-page-manager.filament.navigation.sort');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return config('laravel-filament-page-manager.filament.navigation.label', static::getPluralModelLabel());
+    }
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return config('laravel-filament-page-manager.filament.navigation.icon', 'heroicon-o-document-text');
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('laravel-filament-page-manager.filament.navigation.shouldRegister', true);
+    }
 
     public static function getModel(): string
     {
