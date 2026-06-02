@@ -76,17 +76,17 @@ class PageResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return config('laravel-filament-page-manager.filament.navigation.label', static::getPluralModelLabel());
+        return config('laravel-filament-page-manager.filament.navigation.label') ?? static::getPluralModelLabel();
     }
 
     public static function getNavigationIcon(): string|BackedEnum|null
     {
-        return config('laravel-filament-page-manager.filament.navigation.icon', 'heroicon-o-document-text');
+        return config('laravel-filament-page-manager.filament.navigation.icon') ?? 'heroicon-o-document-text';
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return config('laravel-filament-page-manager.filament.navigation.shouldRegister', true);
+        return (bool) config('laravel-filament-page-manager.filament.navigation.shouldRegister', true);
     }
 
     public static function getModel(): string

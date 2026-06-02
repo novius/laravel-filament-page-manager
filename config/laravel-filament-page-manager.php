@@ -43,7 +43,7 @@ return [
     'filament' => [
         'navigation' => [
             'label' => null,
-            'icon' => null,
+            'icon' => 'heroicon-o-document-text',
             'sort' => null,
             'group' => null,
             'shouldRegister' => true,
