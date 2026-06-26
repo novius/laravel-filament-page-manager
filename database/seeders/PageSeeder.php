@@ -26,6 +26,8 @@ abstract class PageSeeder extends Seeder
      */
     public function run(): void
     {
+        /** @var class-string<Page> $modelPage */
+        $modelPage = config('laravel-filament-page-manager.model', Page::class);
         $pages_config = $this->pages();
 
         $locales = $this->getLocales();
@@ -62,7 +64,7 @@ abstract class PageSeeder extends Seeder
             }
             $slug = Arr::get($config, 'slug');
 
-            $pageParent = Page::query()
+            $pageParent = $modelPage::query()
                 ->when(
                     $special,
                     function (Builder|Page $query) use ($special) {
@@ -80,7 +82,7 @@ abstract class PageSeeder extends Seeder
                 if ($pageParent && $pageParent->locale === $locale->code) {
                     $page = $pageParent;
                 } else {
-                    $page = Page::withLocale($locale->code)->when(
+                    $page = $modelPage::withLocale($locale->code)->when(
                         $special,
                         function (Builder|Page $query) use ($special) {
                             return $query->where('special', (new $special)->key());
@@ -90,7 +92,7 @@ abstract class PageSeeder extends Seeder
                         })
                         ->first();
                     if ($page === null) {
-                        $page = new Page;
+                        $page = new $modelPage;
                         $page->locale = $locale->code;
                     }
                 }
