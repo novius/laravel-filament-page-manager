@@ -46,9 +46,6 @@ jobs:
           - laravel: 12.*
             carbon: 3.*
             testbench: 10.*
-          - laravel: 11.*
-            carbon: 2.*
-            testbench: 9.*
         exclude:
           - laravel: 13.*
             php-versions: '8.2'
