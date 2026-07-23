@@ -1,0 +1,68 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+      - '*.x'
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        php: [8.2, 8.3, 8.4, 8.5]
+        laravel: [12.*, 13.*]
+        filament: [ 4.*, 5.* ]
+        stability: [prefer-lowest, prefer-stable]
+        include:
+          - laravel: 13.*
+            carbon: 3.*
+            testbench: 11.*
+          - laravel: 12.*
+            carbon: 3.*
+            testbench: 10.*
+        exclude:
+          - laravel: 13.*
+            php: 8.2
+          - php: 8.2
+            filament: 5.*
+          - laravel: 13.*
+            filament: 4.*
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.stability }} - ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "filament/filament:${{ matrix.filament }}" "nesbot/carbon:${{ matrix.carbon }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: PHPStan
+        run: composer analyse
+
+      - name: Linter
+        run: composer lint:check

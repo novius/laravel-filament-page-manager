@@ -1,9 +1,11 @@
 {
+    "$schema": "https://getcomposer.org/schema.json",
     "name": "novius/laravel-filament-page-manager",
     "description": "A Laravel Filament package to manage pages.",
     "keywords": [
         "laravel",
         "filament",
+        "novius",
         "page-manager"
     ],
     "license": "AGPL-3.0-or-later",
@@ -29,8 +31,10 @@
     "require-dev": {
         "larastan/larastan": "^2.0 | ^3.0",
         "laravel/pint": "^1.7",
+        "laravel/pao": "^1.0",
         "orchestra/testbench": "^9.0 | ^10.0 | ^11.0",
-        "roave/security-advisories": "dev-latest"
+        "roave/security-advisories": "dev-latest",
+        "phpstan/extension-installer": "^1.4"
     },
     "autoload": {
         "psr-4": {
@@ -38,46 +42,58 @@
             "Novius\\LaravelFilamentPageManager\\Database\\Seeders\\": "database/seeders"
         }
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Novius\\LaravelFilamentPageManager\\LaravelFilamentPageManagerServiceProvider"
-            ]
-        }
-    },
-    "scripts": {
-        "cs-fix": [
-            "./vendor/bin/pint -v"
-        ],
-        "lint": [
-            "@composer cs-fix -- --test"
-        ],
-        "phpstan": [
-            "vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit 1G"
-        ],
-        "post-autoload-dump": [
-            "@clear",
-            "@prepare"
-        ],
-        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
-        "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "build": "@php vendor/bin/testbench workbench:build --ansi",
-        "serve": [
-            "Composer\\Config::disableProcessTimeout",
-            "@build",
-            "@php vendor/bin/testbench serve --ansi"
-        ]
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
-    }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "prepare": [
+            "@php vendor/bin/testbench package:discover --ansi"
+        ],
+        "build": [
+            "@php vendor/bin/testbench workbench:build --ansi"
+        ],
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "vendor/bin/pint --parallel"
+        ],
+        "lint:check": [
+            "vendor/bin/pint --parallel --test"
+        ],
+        "analyse": [
+            "vendor/bin/phpstan analyse --memory-limit 1G"
+        ],
+        "clear": [
+            "@php vendor/bin/testbench package:purge-skeleton --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Novius\\LaravelFilamentPageManager\\LaravelFilamentPageManagerServiceProvider"
+            ],
+            "aliases": {
+                "PageManager": "Novius\\LaravelFilamentPageManager\\Facades\\PageManager"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
