@@ -24,7 +24,6 @@ jobs:
         php: [8.3, 8.4, 8.5]
         laravel: [12.*, 13.*]
         filament: [ 4.*, 5.* ]
-        stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: 13.*
             carbon: 3.*
@@ -40,7 +39,7 @@ jobs:
           - laravel: 13.*
             filament: 4.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -58,7 +57,7 @@ jobs:
       - name: Install Dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "filament/filament:${{ matrix.filament }}" "nesbot/carbon:${{ matrix.carbon }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
 
       - name: PHPStan
