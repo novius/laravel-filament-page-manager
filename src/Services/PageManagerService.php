@@ -125,7 +125,8 @@ class PageManagerService
             report($e);
         }
 
-        Route::get('{page}', fn (Request $request, $page) => $this->render($request, $page))
+        // A static closure keeps the route cacheable: Laravel 13 refuses to unserialize a bound $this
+        Route::get('{page}', static fn (Request $request, $page) => app(self::class)->render($request, $page))
             ->middleware(HandlePages::class)
             ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
             ->name('page-manager.page');
