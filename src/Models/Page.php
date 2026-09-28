@@ -73,18 +73,18 @@ use Throwable;
  * @property-read static|null $parent
  * @property-read Collection<int, static> $children
  *
- * @method static Builder<static>|Page homepage()
- * @method static Builder<static>|Page indexableByRobots()
- * @method static Builder<static>|Page newModelQuery()
- * @method static Builder<static>|Page newQuery()
- * @method static Builder<static>|Page notIndexableByRobots()
- * @method static Builder<static>|Page notPublished()
- * @method static Builder<static>|Page onlyDrafted()
- * @method static Builder<static>|Page onlyExpired()
- * @method static Builder<static>|Page onlyWillBePublished()
- * @method static Builder<static>|Page published()
- * @method static Builder<static>|Page query()
- * @method static Builder<static>|Page withLocale(?string $locale)
+ * @method static Builder<static> homepage()
+ * @method static Builder<static> indexableByRobots()
+ * @method static Builder<static> newModelQuery()
+ * @method static Builder<static> newQuery()
+ * @method static Builder<static> notIndexableByRobots()
+ * @method static Builder<static> notPublished()
+ * @method static Builder<static> onlyDrafted()
+ * @method static Builder<static> onlyExpired()
+ * @method static Builder<static> onlyWillBePublished()
+ * @method static Builder<static> published()
+ * @method static Builder<static> query()
+ * @method static Builder<static> withLocale(?string $locale)
  *
  * @mixin Eloquent
  */
