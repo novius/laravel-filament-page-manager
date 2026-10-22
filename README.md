@@ -431,6 +431,10 @@ Run php-cs with:
 composer run-script lint
 ```
 
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
 ## Contributing
 
 Contributions are welcome!
