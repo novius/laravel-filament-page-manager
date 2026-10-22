@@ -20,8 +20,8 @@ return [
 
     'og_image_path' => 'pages/og',
 
-    // If you want to exclude some pattern for the route page parameter
-    'route_parameter_where' => '^((?!admin).)+$',
+    // Only the Filament panel prefix is excluded, so slugs containing "admin" (e.g. "conseil-administration") still resolve
+    'route_parameter_where' => '^(?!admin(?:/|$)).+$',
 
     'autoload_templates_in' => app_path('Pages/Templates'),
 
