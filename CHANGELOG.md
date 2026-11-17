@@ -5,7 +5,23 @@ All notable changes to `novius/laravel-filament-page-manager` will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/novius/laravel-filament-page-manager/compare/1.0.13...main)
+## [Unreleased](https://github.com/novius/laravel-filament-page-manager/compare/1.1.0...HEAD)
+
+### Fixed
+
+- Register the page route as a fallback route, tried after all the others. With one domain per locale (localized
+  routes bound to a domain), Laravel tried it before the routes without domain, and it took the GET routes of the
+  other packages, such as the script of Livewire: the login form of Filament was submitted as GET and the back office
+  could not be reached.
+
+### Changed
+
+- As the page route is now a fallback route, the routes of the project always win over it, even when they are declared
+  after `PageManager::routes()`: a route of the project with the same path as the slug of a page now takes the request.
+- **Upgrade note**: a project that registers its own `Route::fallback()` before `PageManager::routes()` now gets every
+  page request in its fallback, and no page is served anymore. Call `PageManager::routes()` before `Route::fallback()`.
+
+## [1.1.0](https://github.com/novius/laravel-filament-page-manager/compare/1.0.13...1.1.0) - 2026-11-17
 
 ### Fixed
 
