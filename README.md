@@ -57,6 +57,20 @@ Add to your `routes/web.php` file:
 ```php
     \Novius\LaravelFilamentPageManager\Facades\PageManager::routes();
 ``` 
+
+The page route (`page-manager.page`) is registered as a [fallback route](https://laravel.com/docs/routing#fallback-routes):
+it is tried after all the other routes of your application, whatever their order, their domain or the package that
+registers them. So a route of your project with the same path as the slug of a page takes the request.
+
+If your project registers its own `Route::fallback()`, call `PageManager::routes()` before it: fallback routes are tried
+in the order they are registered, and a fallback declared first would get every page request.
+
+```php
+\Novius\LaravelFilamentPageManager\Facades\PageManager::routes();
+
+Route::fallback(fn () => abort(404));
+```
+
 ## Configuration
 
 Some options that you can override are available.

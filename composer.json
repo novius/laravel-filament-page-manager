@@ -30,9 +30,10 @@
     },
     "require-dev": {
         "larastan/larastan": "^2.0 | ^3.0",
-        "laravel/pint": "^1.7",
         "laravel/pao": "^1.0",
+        "laravel/pint": "^1.7",
         "orchestra/testbench": "^9.0 | ^10.0 | ^11.0",
+        "pestphp/pest": "^4.0",
         "phpstan/extension-installer": "^1.4"
     },
     "autoload": {
@@ -43,6 +44,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Novius\\LaravelFilamentPageManager\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
@@ -73,6 +75,14 @@
         "analyse": [
             "vendor/bin/phpstan analyse --memory-limit 1G"
         ],
+        "test:unit": [
+            "@php vendor/bin/pest"
+        ],
+        "test": [
+            "@lint:check",
+            "@analyse",
+            "@test:unit"
+        ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"
         ]
@@ -90,7 +100,8 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "pestphp/pest-plugin": true
         }
     },
     "minimum-stability": "stable",

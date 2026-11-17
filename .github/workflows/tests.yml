@@ -65,3 +65,6 @@ jobs:
 
       - name: Linter
         run: composer lint:check
+
+      - name: Tests
+        run: composer test:unit

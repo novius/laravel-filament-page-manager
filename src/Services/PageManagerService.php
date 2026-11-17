@@ -125,11 +125,15 @@ class PageManagerService
             report($e);
         }
 
-        // A static closure keeps the route cacheable: Laravel 13 refuses to unserialize a bound $this
+        // A static closure keeps the route cacheable: Laravel 13 refuses to unserialize a bound $this.
+        // A fallback route, tried after all the others: with routes bound to a domain (one domain per locale), Laravel
+        // tries them before the routes without domain, and this catch-all took the GET routes of the other packages,
+        // such as the script of Livewire.
         Route::get('{page}', static fn (Request $request, $page) => app(self::class)->render($request, $page))
             ->middleware(HandlePages::class)
             ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
-            ->name('page-manager.page');
+            ->name('page-manager.page')
+            ->fallback();
     }
 
     public function render(Request $request, ?Page $page = null): View
