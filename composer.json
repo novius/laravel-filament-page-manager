@@ -26,7 +26,7 @@
         "novius/laravel-json-casted": "^1.0.0",
         "novius/laravel-linkable": "^2.0.0",
         "novius/laravel-meta": "^1.2.0",
-        "spatie/laravel-sluggable": "^3.4 | ^4.0"
+        "spatie/laravel-sluggable": "^6.0.0"
     },
     "require-dev": {
         "larastan/larastan": "^2.0 | ^3.0",
