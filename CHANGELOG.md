@@ -5,7 +5,14 @@ All notable changes to `novius/laravel-filament-page-manager` will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/novius/laravel-filament-page-manager/compare/1.1.0...HEAD)
+## [Unreleased](https://github.com/novius/laravel-filament-page-manager/compare/1.1.1...HEAD)
+
+## [1.1.1](https://github.com/novius/laravel-filament-page-manager/compare/1.1.0...1.1.1) - 2026-11-26
+
+### Fixed
+
+- Respond 404 instead of 500 when the page parameter of the page route is resolved to `null`: Laravel only passed the
+  request to the route closure, which failed with "Too few arguments".
 
 ## [1.1.0](https://github.com/novius/laravel-filament-page-manager/compare/1.0.13...1.1.0) - 2026-11-17
 

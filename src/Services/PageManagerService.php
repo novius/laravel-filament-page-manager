@@ -129,7 +129,8 @@ class PageManagerService
         // A fallback route, tried after all the others: with routes bound to a domain (one domain per locale), Laravel
         // tries them before the routes without domain, and this catch-all took the GET routes of the other packages,
         // such as the script of Livewire.
-        Route::get('{page}', static fn (Request $request, $page) => app(self::class)->render($request, $page))
+        // $page is optional: Laravel drops a page parameter resolved to null, and render() then responds 404.
+        Route::get('{page}', static fn (Request $request, $page = null) => app(self::class)->render($request, $page))
             ->middleware(HandlePages::class)
             ->where(['page' => config('laravel-filament-page-manager.route_parameter_where', '^((?!admin).)+$')])
             ->name('page-manager.page')

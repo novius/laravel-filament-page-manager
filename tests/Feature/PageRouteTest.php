@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Novius\LaravelFilamentPageManager\Facades\PageManager;
 
@@ -51,6 +52,13 @@ it('keeps serving pages when the project fallback is declared after the page rou
 
     expect(matchedRouteName('/a-propos'))->toBe('page-manager.page')
         ->and(matchedRouteName('/admin/unknown'))->toBe('project.fallback');
+});
+
+it('responds 404 when the page parameter is resolved to null', function () {
+    Route::bind('page', fn () => null);
+    Route::middleware(SubstituteBindings::class)->group(fn () => PageManager::routes());
+
+    $this->get('/unknown-page')->assertNotFound();
 });
 
 it('hands the pages to a project fallback declared before the page routes', function () {
