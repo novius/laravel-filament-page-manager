@@ -449,6 +449,20 @@ composer run-script lint
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
+### Publishing a release
+
+Releases and their tags are created by the CI, never by hand:
+
+1. In `CHANGELOG.md`, rename `## [Unreleased](…/compare/x.y.z...HEAD)` to
+   `## [x.y.z](https://github.com/novius/laravel-filament-page-manager/compare/<previous>...x.y.z) - YYYY-MM-DD`, then
+   reopen an empty `## [Unreleased](https://github.com/novius/laravel-filament-page-manager/compare/x.y.z...HEAD)`
+   above it.
+2. Commit and push to `main`. Once all the jobs of the `tests` workflow pass, its `release` job creates the GitHub
+   release `x.y.z` and its tag on the pushed commit, with the `x.y.z` section of `CHANGELOG.md` as release notes. If
+   the tag already exists (push without a version bump), it does nothing.
+
+A version bumped in `CHANGELOG.md` is therefore released as soon as it reaches `main`.
+
 ## Contributing
 
 Contributions are welcome!

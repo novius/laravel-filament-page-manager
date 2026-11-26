@@ -68,3 +68,41 @@ jobs:
 
       - name: Tests
         run: composer test:unit
+
+  # Creates the release (and its tag) of the version at the top of CHANGELOG.md, once all the tests pass on main.
+  # See README, "Publishing a release".
+  release:
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # First "## [x.y.z]" heading of CHANGELOG.md, "## [Unreleased]" is skipped.
+          VERSION=$(sed -nE '/^## \[[0-9]+\.[0-9]+\.[0-9]+\]/{s/^## \[([0-9.]+)\].*/\1/p;q}' CHANGELOG.md)
+          if [ -z "$VERSION" ]; then
+            echo "No \"## [x.y.z]\" version in CHANGELOG.md."
+            exit 1
+          fi
+
+          # Version already released (push without a version bump, re-run): nothing to do.
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null; then
+            echo "Tag $VERSION already exists: no new version to release."
+            exit 0
+          fi
+
+          # Release notes: the section of the version in CHANGELOG.md, without its heading.
+          awk -v version="$VERSION" '/^## \[/ { if (found) exit; found = index($0, "## [" version "]") == 1; next } found' CHANGELOG.md \
+            | sed '/./,$!d' > "$RUNNER_TEMP/release-notes.md"
+
+          echo "Creating the release $VERSION on $GITHUB_SHA"
+          gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
