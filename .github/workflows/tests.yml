@@ -18,7 +18,8 @@ jobs:
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      # A transient failure (such as a rate limited download) does not cancel the whole matrix.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.3, 8.4, 8.5]
@@ -53,6 +54,20 @@ jobs:
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        shell: bash
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      # The jobs of the matrix download their packages at the same time: without cache, GitHub may answer 429.
+      - name: Cache Composer packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-l${{ matrix.laravel }}-f${{ matrix.filament }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-l${{ matrix.laravel }}-f${{ matrix.filament }}-
 
       - name: Install Dependencies
         run: |
